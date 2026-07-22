@@ -1,0 +1,192 @@
+{% extends "base.html" %}
+
+{% block page_title %}Single Profile Trust Analyzer{% endblock %}
+{% block page_subtitle %}Execute Deep AI Security Evaluation & Digital DNA Fingerprinting{% endblock %}
+
+{% block content %}
+<!-- Preset Loader Banner -->
+<div class="glass-panel p-4 mb-4 border border-primary border-opacity-25">
+    <div class="d-flex align-items-center gap-2 mb-3">
+        <i class="bi bi-magic fs-4 text-warning"></i>
+        <h5 class="fw-bold mb-0">1-Click Test Archetype Presets</h5>
+    </div>
+    <p class="text-muted small mb-3">Select a pre-configured profile archetype below to quickly test the AI Trust Intelligence Engine:</p>
+
+    <div class="row g-3">
+        <div class="col-md-3">
+            <button type="button" class="btn glass-card w-100 p-3 text-start border-success border-opacity-50" onclick="loadPreset('genuine_influencer')">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <span class="badge bg-success">Genuine</span>
+                    <i class="bi bi-patch-check-fill text-success"></i>
+                </div>
+                <div class="fw-bold text-white small">Tech Influencer</div>
+                <small class="text-muted" style="font-size:0.75rem;">Verified, high engagement, balanced network</small>
+            </button>
+        </div>
+
+        <div class="col-md-3">
+            <button type="button" class="btn glass-card w-100 p-3 text-start border-danger border-opacity-50" onclick="loadPreset('bot_network')">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <span class="badge bg-danger">Bot Risk</span>
+                    <i class="bi bi-robot text-danger"></i>
+                </div>
+                <div class="fw-bold text-white small">Automated Bot Net</div>
+                <small class="text-muted" style="font-size:0.75rem;">84 posts/day, no pic, digits in handle</small>
+            </button>
+        </div>
+
+        <div class="col-md-3">
+            <button type="button" class="btn glass-card w-100 p-3 text-start border-warning border-opacity-50" onclick="loadPreset('inorganic_growth')">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <span class="badge bg-warning text-dark">Suspicious</span>
+                    <i class="bi bi-graph-up-arrow text-warning"></i>
+                </div>
+                <div class="fw-bold text-white small">Inorganic Audience</div>
+                <small class="text-muted" style="font-size:0.75rem;">28K followers in 45 days, 18 posts</small>
+            </button>
+        </div>
+
+        <div class="col-md-3">
+            <button type="button" class="btn glass-card w-100 p-3 text-start border-secondary border-opacity-50" onclick="loadPreset('dormant_suspicious')">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <span class="badge bg-secondary">Dormant</span>
+                    <i class="bi bi-moon-stars text-secondary"></i>
+                </div>
+                <div class="fw-bold text-white small">Dormant Account</div>
+                <small class="text-muted" style="font-size:0.75rem;">1 post in 380 days, follows 850</small>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Main Analysis Form -->
+<div class="glass-panel p-4">
+    <h5 class="fw-bold mb-4"><i class="bi bi-sliders me-2 text-primary"></i>Profile Feature Parameters</h5>
+
+    <form method="POST" action="{{ url_for('analysis.new_analysis') }}" id="analysisForm">
+        <div class="row g-4">
+            <!-- Basic Identifiers -->
+            <div class="col-md-4">
+                <label class="form-label text-muted small fw-bold">TARGET USERNAME / HANDLE</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-transparent border-secondary text-muted">@</span>
+                    <input type="text" name="username" id="in_username" class="form-control bg-transparent border-secondary text-white" placeholder="target_user" required>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <label class="form-label text-muted small fw-bold">DISPLAY NAME</label>
+                <input type="text" name="display_name" id="in_display_name" class="form-control bg-transparent border-secondary text-white" placeholder="Target Display Name">
+            </div>
+
+            <div class="col-md-4">
+                <label class="form-label text-muted small fw-bold">SOCIAL PLATFORM</label>
+                <select name="platform" id="in_platform" class="form-select bg-dark border-secondary text-white">
+                    <option value="Twitter/X">Twitter / X</option>
+                    <option value="Instagram">Instagram</option>
+                    <option value="LinkedIn">LinkedIn</option>
+                </select>
+            </div>
+
+            <!-- Network Metrics -->
+            <div class="col-md-3">
+                <label class="form-label text-muted small fw-bold">FOLLOWERS COUNT</label>
+                <input type="number" name="followers_count" id="in_followers" class="form-control bg-transparent border-secondary text-white" value="1000" min="0">
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label text-muted small fw-bold">FOLLOWING COUNT</label>
+                <input type="number" name="following_count" id="in_following" class="form-control bg-transparent border-secondary text-white" value="500" min="0">
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label text-muted small fw-bold">TOTAL POSTS</label>
+                <input type="number" name="posts_count" id="in_posts" class="form-control bg-transparent border-secondary text-white" value="450" min="0">
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label text-muted small fw-bold">ACCOUNT AGE (DAYS)</label>
+                <input type="number" name="account_age_days" id="in_account_age" class="form-control bg-transparent border-secondary text-white" value="365" min="0">
+            </div>
+
+            <!-- Activity & Engagement -->
+            <div class="col-md-4">
+                <label class="form-label text-muted small fw-bold">AVG LIKES PER POST</label>
+                <input type="number" step="0.1" name="avg_likes_per_post" id="in_avg_likes" class="form-control bg-transparent border-secondary text-white" value="25.0" min="0">
+            </div>
+
+            <div class="col-md-4">
+                <label class="form-label text-muted small fw-bold">AVG RETWEETS / SHARES</label>
+                <input type="number" step="0.1" name="avg_retweets_per_post" id="in_avg_retweets" class="form-control bg-transparent border-secondary text-white" value="4.5" min="0">
+            </div>
+
+            <div class="col-md-4">
+                <label class="form-label text-muted small fw-bold">POSTING FREQUENCY (POSTS/DAY)</label>
+                <input type="number" step="0.1" name="posting_frequency_per_day" id="in_posting_freq" class="form-control bg-transparent border-secondary text-white" value="2.0" min="0">
+            </div>
+
+            <!-- Flags & Switches -->
+            <div class="col-md-3">
+                <div class="form-check form-switch mt-2">
+                    <input class="form-check-input" type="checkbox" name="has_profile_pic" value="1" id="in_has_pic" checked>
+                    <label class="form-check-label text-white small" for="in_has_pic">Has Profile Avatar</label>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="form-check form-switch mt-2">
+                    <input class="form-check-input" type="checkbox" name="has_bio" value="1" id="in_has_bio" checked>
+                    <label class="form-check-label text-white small" for="in_has_bio">Has Bio Description</label>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="form-check form-switch mt-2">
+                    <input class="form-check-input" type="checkbox" name="is_verified" value="1" id="in_is_verified">
+                    <label class="form-check-label text-white small" for="in_is_verified">Is Verified Badge</label>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="form-check form-switch mt-2">
+                    <input class="form-check-input" type="checkbox" name="has_url" value="1" id="in_has_url" checked>
+                    <label class="form-check-label text-white small" for="in_has_url">Has External Link</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-4 pt-3 border-top border-secondary border-opacity-25 text-end">
+            <button type="submit" class="btn btn-primary px-4 py-2 fw-bold shadow">
+                <i class="bi bi-shield-check me-2"></i> Run AI Trust Intelligence Engine
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const presets = {{ presets|tojson }};
+
+function loadPreset(key) {
+    const data = presets[key];
+    if (!data) return;
+
+    document.getElementById('in_username').value = data.username;
+    document.getElementById('in_display_name').value = data.display_name;
+    document.getElementById('in_platform').value = data.platform;
+    document.getElementById('in_followers').value = data.followers_count;
+    document.getElementById('in_following').value = data.following_count;
+    document.getElementById('in_posts').value = data.posts_count;
+    document.getElementById('in_account_age').value = data.account_age_days;
+    document.getElementById('in_avg_likes').value = data.avg_likes_per_post;
+    document.getElementById('in_avg_retweets').value = data.avg_retweets_per_post;
+    document.getElementById('in_posting_freq').value = data.posting_frequency_per_day;
+
+    document.getElementById('in_has_pic').checked = data.has_profile_pic;
+    document.getElementById('in_has_bio').checked = data.has_bio;
+    document.getElementById('in_is_verified').checked = data.is_verified;
+    document.getElementById('in_has_url').checked = data.has_url;
+}
+</script>
+{% endblock %}

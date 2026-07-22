@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block page_title %}Dataset Manager{% endblock %}
+{% block page_subtitle %}Manage training datasets for ML model retraining and pipeline benchmarking{% endblock %}
+
+{% block content %}
+<div class="row g-4 mb-4">
+    <!-- Upload New Dataset Form -->
+    <div class="col-lg-5">
+        <div class="glass-panel p-4 h-100">
+            <h5 class="fw-bold mb-3"><i class="bi bi-cloud-upload-fill me-2 text-primary"></i>Upload New Training Dataset</h5>
+            <form method="POST" action="{{ url_for('admin.datasets') }}" enctype="multipart/form-data">
+                <div class="mb-3">
+                    <label class="form-label text-muted small fw-bold">DATASET CSV FILE</label>
+                    <input type="file" name="file" class="form-control bg-transparent border-secondary text-white" accept=".csv" required>
+                </div>
+                <div class="mb-4">
+                    <label class="form-label text-muted small fw-bold">DATASET DESCRIPTION</label>
+                    <input type="text" name="description" class="form-control bg-transparent border-secondary text-white" placeholder="e.g. Q3 2026 Social Spam Audit Corpus">
+                </div>
+                <button type="submit" class="btn btn-primary w-100 py-2 fw-bold">
+                    <i class="bi bi-database-add me-1"></i> Register Dataset
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Active Datasets Summary -->
+    <div class="col-lg-7">
+        <div class="glass-panel p-4 h-100">
+            <h5 class="fw-bold mb-3"><i class="bi bi-journal-text me-2 text-info"></i>Registered Datasets</h5>
+            
+            <div class="table-responsive">
+                <table class="table table-dark table-hover align-middle mb-0">
+                    <thead>
+                        <tr class="text-muted small border-bottom border-secondary border-opacity-50">
+                            <th>FILENAME</th>
+                            <th>RECORDS</th>
+                            <th>FEATURES</th>
+                            <th>DATE</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ds in datasets %}
+                        <tr>
+                            <td>
+                                <div class="fw-bold text-white">{{ ds.filename }}</div>
+                                <small class="text-muted">{{ ds.description }}</small>
+                            </td>
+                            <td class="fw-bold text-info">{{ ds.num_rows|format_num }}</td>
+                            <td>{{ ds.num_features }}</td>
+                            <td class="text-muted small">{{ ds.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="4" class="text-center text-muted py-4">No custom datasets uploaded. System using synthetic baseline generator.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

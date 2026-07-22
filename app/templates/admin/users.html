@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block page_title %}User Management{% endblock %}
+{% block page_subtitle %}Manage system analyst accounts and role permissions{% endblock %}
+
+{% block content %}
+<div class="glass-panel p-4">
+    <div class="table-responsive">
+        <table class="table table-dark table-hover align-middle mb-0">
+            <thead>
+                <tr class="text-muted small border-bottom border-secondary border-opacity-50">
+                    <th>USERNAME</th>
+                    <th>EMAIL ADDRESS</th>
+                    <th>ROLE</th>
+                    <th>LAST LOGIN</th>
+                    <th>CREATED AT</th>
+                    <th class="text-end">ACTION</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for u in users %}
+                <tr>
+                    <td class="fw-bold">
+                        <i class="bi bi-person-circle text-primary me-2"></i> {{ u.username }}
+                    </td>
+                    <td>{{ u.email }}</td>
+                    <td>
+                        <span class="badge {% if u.role == 'admin' %}bg-primary{% else %}bg-secondary{% endif %}">
+                            {{ u.role.upper() }}
+                        </span>
+                    </td>
+                    <td class="text-muted small">{{ u.last_login.strftime('%Y-%m-%d %H:%M') if u.last_login else 'Never' }}</td>
+                    <td class="text-muted small">{{ u.created_at.strftime('%Y-%m-%d') }}</td>
+                    <td class="text-end">
+                        {% if u.id != current_user.id %}
+                        <form method="POST" action="{{ url_for('admin.toggle_user_role', user_id=u.id) }}" class="d-inline">
+                            <button type="submit" class="btn btn-sm btn-outline-warning">
+                                Toggle Role
+                            </button>
+                        </form>
+                        {% else %}
+                        <small class="text-muted">Current Session</small>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+
+{% block page_title %}Profile Trust Intelligence Comparator{% endblock %}
+{% block page_subtitle %}Side-by-side behavioral vector & score differential analysis{% endblock %}
+
+{% block content %}
+<!-- Profile Selection Bar -->
+<div class="glass-panel p-4 mb-4">
+    <form method="GET" action="{{ url_for('compare.compare_profiles') }}" class="row g-3 align-items-end">
+        <div class="col-md-5">
+            <label class="form-label text-muted small fw-bold">PRIMARY PROFILE A</label>
+            <select name="p1" class="form-select bg-dark border-secondary text-white">
+                {% for p in all_profiles %}
+                <option value="{{ p.id }}" {% if profile1 and profile1.id == p.id %}selected{% endif %}>
+                    @{{ p.username }} (Trust Score: {{ p.trust_score|int }}, Risk: {{ p.risk_level }})
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="col-md-5">
+            <label class="form-label text-muted small fw-bold">COMPARISON PROFILE B</label>
+            <select name="p2" class="form-select bg-dark border-secondary text-white">
+                {% for p in all_profiles %}
+                <option value="{{ p.id }}" {% if profile2 and profile2.id == p.id %}selected{% endif %}>
+                    @{{ p.username }} (Trust Score: {{ p.trust_score|int }}, Risk: {{ p.risk_level }})
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-primary w-100 py-2 fw-bold">
+                <i class="bi bi-symmetry-horizontal me-1"></i> Compare
+            </button>
+        </div>
+    </form>
+</div>
+
+{% if profile1 and profile2 %}
+<!-- Dual Radar Chart Overlay -->
+<div class="glass-panel p-4 mb-4">
+    <h5 class="fw-bold mb-3"><i class="bi bi-radar me-2 text-primary"></i>Trust Radar Overlay Comparison</h5>
+    <div style="height: 360px; position: relative;">
+        <canvas id="compareRadarCanvas"></canvas>
+    </div>
+</div>
+
+<!-- Side-by-Side Differential Metric Table -->
+<div class="row g-4">
+    <!-- Profile A Card -->
+    <div class="col-md-6">
+        <div class="glass-panel p-4 h-100 border-top border-primary border-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                    <h4 class="fw-bold mb-0">@{{ profile1.username }}</h4>
+                    <span class="digital-dna-badge small">{{ profile1.digital_dna }}</span>
+                </div>
+                <div class="text-end">
+                    <div class="display-6 fw-bold text-primary">{{ profile1.trust_score|int }}</div>
+                    <small class="text-muted">TRUST SCORE</small>
+                </div>
+            </div>
+
+            <ul class="list-group list-group-flush bg-transparent small">
+                <li class="list-group-item bg-transparent text-white border-secondary border-opacity-25 d-flex justify-content-between">
+                    <span class="text-muted">Risk Level</span>
+                    <span class="badge badge-risk-{{ profile1.risk_level.lower() }}">{{ profile1.risk_level }}</span>
+                </li>
+                <li class="list-group-item bg-transparent text-white border-secondary border-opacity-25 d-flex justify-content-between">
+                    <span class="text-muted">Behaviour Cluster</span>
+                    <span class="fw-bold">{{ profile1.behaviour_cluster }}</span>
+                </li>
+                <li class="list-group-item bg-transparent text-white border-secondary border-opacity-25 d-flex justify-content-between">
+                    <span class="text-muted">Followers / Following</span>
+                    <span class="fw-bold">{{ profile1.followers_count|format_num }} / {{ profile1.following_count|format_num }}</span>
+                </li>
+                <li class="list-group-item bg-transparent text-white border-secondary border-opacity-25 d-flex justify-content-between">
+                    <span class="text-muted">Posting Frequency</span>
+                    <span class="fw-bold">{{ "%.1f"|format(profile1.posting_frequency_per_day) }} / day</span>
+                </li>
+                <li class="list-group-item bg-transparent text-white border-secondary border-opacity-25 d-flex justify-content-between">
+                    <span class="text-muted">AI Recommendation</span>
+                    <span class="fw-bold text-info">{{ profile1.recommendation }}</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Profile B Card -->
+    <div class="col-md-6">
+        <div class="glass-panel p-4 h-100 border-top border-pink border-4" style="border-top-color: #ec4899 !important;">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                    <h4 class="fw-bold mb-0">@{{ profile2.username }}</h4>
+                    <span class="digital-dna-badge small" style="color: #ec4899; border-color: #ec4899;">{{ profile2.digital_dna }}</span>
+                </div>
+                <div class="text-end">
+                    <div class="display-6 fw-bold" style="color: #ec4899;">{{ profile2.trust_score|int }}</div>
+                    <small class="text-muted">TRUST SCORE</small>
+                </div>
+            </div>
+
+            <ul class="list-group list-group-flush bg-transparent small">
+                <li class="list-group-item bg-transparent text-white border-secondary border-opacity-25 d-flex justify-content-between">
+                    <span class="text-muted">Risk Level</span>
+                    <span class="badge badge-risk-{{ profile2.risk_level.lower() }}">{{ profile2.risk_level }}</span>
+                </li>
+                <li class="list-group-item bg-transparent text-white border-secondary border-opacity-25 d-flex justify-content-between">
+                    <span class="text-muted">Behaviour Cluster</span>
+                    <span class="fw-bold">{{ profile2.behaviour_cluster }}</span>
+                </li>
+                <li class="list-group-item bg-transparent text-white border-secondary border-opacity-25 d-flex justify-content-between">
+                    <span class="text-muted">Followers / Following</span>
+                    <span class="fw-bold">{{ profile2.followers_count|format_num }} / {{ profile2.following_count|format_num }}</span>
+                </li>
+                <li class="list-group-item bg-transparent text-white border-secondary border-opacity-25 d-flex justify-content-between">
+                    <span class="text-muted">Posting Frequency</span>
+                    <span class="fw-bold">{{ "%.1f"|format(profile2.posting_frequency_per_day) }} / day</span>
+                </li>
+                <li class="list-group-item bg-transparent text-white border-secondary border-opacity-25 d-flex justify-content-between">
+                    <span class="text-muted">AI Recommendation</span>
+                    <span class="fw-bold text-info">{{ profile2.recommendation }}</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% else %}
+<div class="glass-panel p-5 text-center text-muted">
+    <i class="bi bi-info-circle display-4 d-block mb-3"></i>
+    Please select two profiles from the dropdown above to generate a side-by-side comparative analysis.
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+{% if profile1 and profile2 %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const radar1 = {{ profile1.trust_radar|tojson }};
+    const radar2 = {{ profile2.trust_radar|tojson }};
+    renderCompareRadar('compareRadarCanvas', radar1, "{{ profile1.username }}", radar2, "{{ profile2.username }}");
+});
+</script>
+{% endif %}
+{% endblock %}

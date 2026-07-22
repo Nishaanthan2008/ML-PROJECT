@@ -1,0 +1,418 @@
+{% extends "base.html" %}
+
+{% block page_title %}Security Intelligence Dashboard{% endblock %}
+{% block page_subtitle %}Real-time Monitoring & Social Profile Risk Analytics Overview{% endblock %}
+
+{% block content %}
+
+<!-- KPI Counter Cards -->
+<div class="row g-4 mb-4">
+
+    <div class="col-xl-3 col-sm-6">
+        <div class="glass-panel p-3 d-flex align-items-center gap-3">
+            <div class="rounded-3 p-3 bg-primary bg-opacity-25 text-primary">
+                <i class="bi bi-shield-check fs-2"></i>
+            </div>
+            <div>
+                <small class="text-muted fw-bold d-block text-uppercase" style="font-size:0.7rem;">
+                    Total Scanned Profiles
+                </small>
+                <h3 class="fw-bold mb-0 animate-counter"
+                    data-target="{{ total_analyses }}">
+                    0
+                </h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-sm-6">
+        <div class="glass-panel p-3 d-flex align-items-center gap-3">
+            <div class="rounded-3 p-3 bg-success bg-opacity-25 text-success">
+                <i class="bi bi-patch-check-fill fs-2"></i>
+            </div>
+            <div>
+                <small class="text-muted fw-bold d-block text-uppercase" style="font-size:0.7rem;">
+                    Average Trust Score
+                </small>
+
+                <h3 class="fw-bold mb-0 text-success">
+                    <span class="animate-counter"
+                          data-target="{{ avg_trust_score|int }}">0</span>
+                    <small class="fs-6">/100</small>
+                </h3>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-sm-6">
+        <div class="glass-panel p-3 d-flex align-items-center gap-3">
+            <div class="rounded-3 p-3 bg-danger bg-opacity-25 text-danger">
+                <i class="bi bi-exclamation-triangle-fill fs-2"></i>
+            </div>
+
+            <div>
+                <small class="text-muted fw-bold d-block text-uppercase"
+                       style="font-size:0.7rem;">
+                    High / Critical Risk
+                </small>
+
+                <h3 class="fw-bold mb-0 text-danger animate-counter"
+                    data-target="{{ high_risk + critical_risk }}">
+                    0
+                </h3>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-sm-6">
+        <div class="glass-panel p-3 d-flex align-items-center gap-3">
+            <div class="rounded-3 p-3 bg-info bg-opacity-25 text-info">
+                <i class="bi bi-cpu-fill fs-2"></i>
+            </div>
+
+            <div>
+                <small class="text-muted fw-bold d-block text-uppercase"
+                       style="font-size:0.7rem;">
+                    Active ML Model
+                </small>
+
+                <h6 class="fw-bold mb-0 text-info">
+                    {{ active_model.model_name if active_model else 'XGBoost Baseline' }}
+                </h6>
+
+                <small class="text-muted" style="font-size:0.75rem;">
+                    F1:
+                    {{ "%.4f"|format(active_model.f1_score) if active_model else "0.9650" }}
+                </small>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Charts -->
+<div class="row g-4 mb-4">
+
+    <div class="col-lg-5">
+        <div class="glass-panel p-4 h-100">
+
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold mb-0">
+                    <i class="bi bi-pie-chart-fill me-2 text-primary"></i>
+                    Risk Intelligence Distribution
+                </h5>
+
+                <span class="badge bg-secondary">
+                    Live
+                </span>
+            </div>
+
+            <div style="height:250px;position:relative;">
+                <canvas id="dashboardRiskDoughnut"></canvas>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Quick Scan -->
+
+    <div class="col-lg-7">
+
+        <div class="glass-panel p-4 h-100">
+
+            <div class="d-flex justify-content-between align-items-center mb-3">
+
+                <h5 class="fw-bold mb-0">
+                    <i class="bi bi-lightning-charge-fill me-2 text-warning"></i>
+                    Instant Profile Scanner
+                </h5>
+
+                <a href="{{ url_for('analysis.new_analysis') }}"
+                   class="btn btn-sm btn-outline-primary">
+                    Full Options
+                    <i class="bi bi-arrow-right"></i>
+                </a>
+
+            </div>
+
+            <p class="text-muted small mb-3">
+                Run an AI security evaluation on any social profile handle instantly.
+            </p>
+
+            <form action="{{ url_for('analysis.new_analysis') }}"
+                  method="POST"
+                  class="row g-3">
+
+                <div class="col-md-6">
+                    <label class="form-label text-muted small fw-bold">
+                        PROFILE HANDLE
+                    </label>
+
+                    <div class="input-group">
+                        <span class="input-group-text bg-transparent border-secondary text-muted">
+                            @
+                        </span>
+
+                        <input
+                            type="text"
+                            name="username"
+                            class="form-control bg-transparent border-secondary text-white"
+                            placeholder="target_username"
+                            required>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+
+                    <label class="form-label text-muted small fw-bold">
+                        PLATFORM
+                    </label>
+
+                    <select
+                        name="platform"
+                        class="form-select bg-transparent border-secondary text-white">
+
+                        <option value="Twitter/X">Twitter / X</option>
+                        <option value="Instagram">Instagram</option>
+                        <option value="LinkedIn">LinkedIn</option>
+
+                    </select>
+
+                </div>
+
+                <div class="col-md-4">
+
+                    <label class="form-label text-muted small fw-bold">
+                        FOLLOWERS
+                    </label>
+
+                    <input
+                        type="number"
+                        name="followers_count"
+                        class="form-control bg-transparent border-secondary text-white"
+                        value="1250"
+                        min="0">
+
+                </div>
+
+                <div class="col-md-4">
+
+                    <label class="form-label text-muted small fw-bold">
+                        FOLLOWING
+                    </label>
+
+                    <input
+                        type="number"
+                        name="following_count"
+                        class="form-control bg-transparent border-secondary text-white"
+                        value="450"
+                        min="0">
+
+                </div>
+
+                <div class="col-md-4">
+
+                    <label class="form-label text-muted small fw-bold">
+                        ACCOUNT AGE (DAYS)
+                    </label>
+
+                    <input
+                        type="number"
+                        name="account_age_days"
+                        class="form-control bg-transparent border-secondary text-white"
+                        value="450"
+                        min="0">
+
+                </div>
+
+                <div class="col-12 mt-4">
+
+                    <button
+                        type="submit"
+                        class="btn btn-cyber-primary w-100 py-2 fw-bold">
+
+                        <i class="bi bi-cpu-fill me-1"></i>
+
+                        Generate AI Trust Intelligence Report
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- Recent Analyses -->
+
+<div class="glass-panel p-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+
+        <h5 class="fw-bold mb-0">
+            <i class="bi bi-clock-history me-2 text-info"></i>
+            Recent Trust Intelligence Assessments
+        </h5>
+
+        <a href="{{ url_for('batch.history') }}"
+           class="btn btn-sm btn-outline-secondary">
+            View All History
+        </a>
+
+    </div>
+
+    <div class="table-responsive">
+
+        <table class="table table-hover align-middle mb-0">
+
+            <thead>
+
+            <tr class="text-muted small">
+
+                <th>DIGITAL DNA</th>
+                <th>TARGET HANDLE</th>
+                <th>TRUST SCORE</th>
+                <th>RISK LEVEL</th>
+                <th>BEHAVIOUR CLUSTER</th>
+                <th>RECOMMENDATION</th>
+                <th>DATE</th>
+                <th class="text-end">ACTION</th>
+
+            </tr>
+
+            </thead>
+
+            <tbody>
+
+            {% for a in recent_analyses %}
+
+            <tr>
+
+                <td>
+                    <span class="digital-dna-badge">
+                        {{ a.digital_dna }}
+                    </span>
+                </td>
+
+                <td>
+
+                    <div class="fw-bold">
+                        @{{ a.username }}
+                    </div>
+
+                    <small class="text-muted">
+                        {{ a.platform }}
+                    </small>
+
+                </td>
+
+                <td>
+
+                    <div class="d-flex align-items-center gap-2">
+
+                        {% if a.trust_score >= 80 %}
+                            <span class="fw-bold fs-5 text-score-excellent">
+                        {% elif a.trust_score >= 60 %}
+                            <span class="fw-bold fs-5 text-score-good">
+                        {% elif a.trust_score >= 35 %}
+                            <span class="fw-bold fs-5 text-score-moderate">
+                        {% else %}
+                            <span class="fw-bold fs-5 text-score-critical">
+                        {% endif %}
+
+                            {{ a.trust_score|int }}
+
+                        </span>
+
+                        <small class="text-muted">/100</small>
+
+                    </div>
+
+                </td>
+
+                <td>
+
+                    <span class="badge badge-risk-{{ a.risk_level.lower() }}">
+                        {{ a.risk_level }}
+                    </span>
+
+                </td>
+
+                <td>
+
+                    <span class="badge bg-secondary">
+                        {{ a.behaviour_cluster }}
+                    </span>
+
+                </td>
+
+                <td class="small">
+                    {{ a.recommendation }}
+                </td>
+
+                <td class="text-muted small">
+                    {{ a.created_at.strftime('%b %d, %H:%M') }}
+                </td>
+
+                <td class="text-end">
+
+                    <a href="{{ url_for('analysis.view_report', analysis_id=a.id) }}"
+                       class="btn btn-sm btn-outline-primary">
+
+                        Report
+
+                        <i class="bi bi-arrow-right"></i>
+
+                    </a>
+
+                </td>
+
+            </tr>
+
+            {% else %}
+
+            <tr>
+
+                <td colspan="8"
+                    class="text-center text-muted py-4">
+
+                    No profile assessments recorded yet. Run a scan above!
+
+                </td>
+
+            </tr>
+
+            {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    renderDashboardRiskDoughnut(
+        "dashboardRiskDoughnut",
+        "{{ low_risk }}",
+        "{{ moderate_risk }}",
+        "{{ high_risk }}",
+        "{{ critical_risk }}"
+    );
+});
+</script>
+
+{% endblock %}

@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block auth_content %}
+<div class="glass-panel p-4 p-sm-5 rounded-4 shadow-lg" style="max-width: 440px; width: 100%;">
+    <div class="text-center mb-4">
+        <i class="bi bi-shield-plus display-3 text-primary"></i>
+        <h3 class="fw-bold mt-2 gradient-text">Create Account</h3>
+        <p class="text-muted small">Join Profile Shield AI Trust Network</p>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show glass-card border-0" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <form method="POST" action="{{ url_for('auth.register') }}">
+        <div class="mb-3">
+            <label class="form-label text-muted small fw-bold">USERNAME</label>
+            <div class="input-group">
+                <span class="input-group-text bg-transparent border-secondary border-opacity-50 text-muted"><i class="bi bi-person"></i></span>
+                <input type="text" name="username" class="form-control bg-transparent border-secondary border-opacity-50 text-white" placeholder="analyst_jane" required>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label text-muted small fw-bold">EMAIL ADDRESS</label>
+            <div class="input-group">
+                <span class="input-group-text bg-transparent border-secondary border-opacity-50 text-muted"><i class="bi bi-envelope"></i></span>
+                <input type="email" name="email" class="form-control bg-transparent border-secondary border-opacity-50 text-white" placeholder="jane@company.com" required>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label text-muted small fw-bold">PASSWORD</label>
+            <div class="input-group">
+                <span class="input-group-text bg-transparent border-secondary border-opacity-50 text-muted"><i class="bi bi-key"></i></span>
+                <input type="password" name="password" class="form-control bg-transparent border-secondary border-opacity-50 text-white" placeholder="••••••••" required>
+            </div>
+        </div>
+
+        <div class="mb-4">
+            <label class="form-label text-muted small fw-bold">CONFIRM PASSWORD</label>
+            <div class="input-group">
+                <span class="input-group-text bg-transparent border-secondary border-opacity-50 text-muted"><i class="bi bi-shield-check"></i></span>
+                <input type="password" name="confirm_password" class="form-control bg-transparent border-secondary border-opacity-50 text-white" placeholder="••••••••" required>
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-cyber-primary w-100 py-2.5 fw-bold rounded-3 shadow">
+            Register Account <i class="bi bi-check-lg ms-1"></i>
+        </button>
+    </form>
+
+    <div class="text-center mt-4">
+        <span class="text-muted small">Already registered?</span>
+        <a href="{{ url_for('auth.login') }}" class="text-primary text-decoration-none small fw-bold ms-1">Sign In</a>
+    </div>
+</div>
+{% endblock %}

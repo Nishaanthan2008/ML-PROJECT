@@ -1,0 +1,246 @@
+{% extends "base.html" %}
+
+{% block page_title %}Trust Intelligence Report{% endblock %}
+{% block page_subtitle %}Comprehensive Security Assessment for @{{ analysis.username }}{% endblock %}
+
+{% block content %}
+<!-- Top Toolbar -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="d-flex align-items-center gap-3">
+        <span class="digital-dna-badge fs-6">{{ analysis.digital_dna }}</span>
+        <span class="badge bg-secondary px-3 py-2 fs-6"><i class="bi bi-tag-fill me-1"></i> {{ analysis.behaviour_cluster }}</span>
+    </div>
+    
+    <div class="d-flex gap-2">
+        <a href="{{ url_for('compare.compare_profiles', p1=analysis.id) }}" class="btn btn-outline-info btn-sm">
+            <i class="bi bi-symmetry-horizontal me-1"></i> Compare Profile
+        </a>
+        <a href="{{ url_for('reports.print_report', analysis_id=analysis.id) }}" target="_blank" class="btn btn-outline-light btn-sm">
+            <i class="bi bi-printer me-1"></i> Print View
+        </a>
+        <a href="{{ url_for('reports.download_pdf', analysis_id=analysis.id) }}" class="btn btn-primary btn-sm">
+            <i class="bi bi-file-earmark-pdf-fill me-1"></i> Download Official PDF Report
+        </a>
+    </div>
+</div>
+
+<!-- Key Score Cards Row -->
+<div class="row g-4 mb-4">
+    <!-- Trust Score Gauge -->
+    <div class="col-lg-3 col-sm-6">
+        <div class="glass-panel p-4 text-center h-100 d-flex flex-column justify-content-center">
+            <div class="trust-score-gauge mb-2">
+                <svg width="160" height="160">
+                    <circle class="gauge-bg" cx="80" cy="80" r="65"></circle>
+                    <circle class="gauge-fill" cx="80" cy="80" r="65" 
+                            stroke="{% if analysis.trust_score >= 80 %}#22c55e{% elif analysis.trust_score >= 60 %}#eab308{% elif analysis.trust_score >= 35 %}#f97316{% else %}#ef4444{% endif %}"
+                            stroke-dasharray="408" 
+                            stroke-dashoffset="{{ 408 - (408 * analysis.trust_score / 100) }}"></circle>
+                </svg>
+                <div class="gauge-center-text">
+                    <div class="display-5 fw-bold" style="color: {% if analysis.trust_score >= 80 %}#22c55e{% elif analysis.trust_score >= 60 %}#eab308{% elif analysis.trust_score >= 35 %}#f97316{% else %}#ef4444{% endif %};">
+                        {{ analysis.trust_score|int }}
+                    </div>
+                    <small class="text-muted fw-bold">/ 100</small>
+                </div>
+            </div>
+            <div class="fw-bold text-uppercase text-muted" style="font-size:0.75rem;">AI Trust Score</div>
+        </div>
+    </div>
+
+    <!-- Confidence & Risk Meter -->
+    <div class="col-lg-3 col-sm-6">
+        <div class="glass-panel p-4 text-center h-100 d-flex flex-column justify-content-center">
+            <div class="mb-3">
+                <i class="bi bi-shield-check display-4 text-info"></i>
+            </div>
+            <h3 class="fw-bold text-info mb-1">{{ analysis.confidence|int }}%</h3>
+            <div class="text-muted fw-bold text-uppercase small">AI Confidence Level</div>
+            <small class="text-muted mt-2">Validated against 16 behavior dimensions</small>
+        </div>
+    </div>
+
+    <div class="col-lg-3 col-sm-6">
+        <div class="glass-panel p-4 text-center h-100 d-flex flex-column justify-content-center">
+            <div class="mb-2">
+                <span class="badge badge-risk-{{ analysis.risk_level.lower() }} fs-4 px-4 py-2 rounded-pill shadow">
+                    {{ analysis.risk_level.upper() }} RISK
+                </span>
+            </div>
+            <div class="text-muted fw-bold text-uppercase small mt-2">AI Risk Assessment</div>
+            <small class="text-muted mt-1">Health Status: <b class="text-white">{{ analysis.health_meter }}</b></small>
+        </div>
+    </div>
+
+    <div class="col-lg-3 col-sm-6">
+        <div class="glass-panel p-4 text-center h-100 d-flex flex-column justify-content-center border-start border-primary border-3">
+            <small class="text-muted fw-bold text-uppercase" style="font-size:0.7rem;">AI Recommendation</small>
+            <h4 class="fw-bold text-primary my-2">{{ analysis.recommendation }}</h4>
+            <small class="text-muted">Platform Action Directive</small>
+        </div>
+    </div>
+</div>
+
+<!-- AI Explanation Narrative -->
+<div class="glass-panel p-4 mb-4 border-start border-warning border-4">
+    <div class="d-flex align-items-center gap-2 mb-2">
+        <i class="bi bi-cpu-fill fs-4 text-warning"></i>
+        <h5 class="fw-bold mb-0">AI Security Analyst Narrative Explanation</h5>
+    </div>
+    <p class="fs-6 text-light mb-0" style="line-height: 1.6; font-style: italic;">
+        "{{ analysis.ai_explanation_narrative }}"
+    </p>
+</div>
+
+<!-- Trust Radar & SHAP Feature Importance -->
+<div class="row g-4 mb-4">
+    <!-- Trust Radar -->
+    <div class="col-lg-6">
+        <div class="glass-panel p-4 h-100">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold mb-0"><i class="bi bi-radar me-2 text-primary"></i>7-Axis Trust Radar</h5>
+                <small class="text-muted">Behavioral Vector</small>
+            </div>
+            <div style="height: 320px; position: relative;">
+                <canvas id="trustRadarCanvas"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- SHAP Feature Importance -->
+    <div class="col-lg-6">
+        <div class="glass-panel p-4 h-100">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold mb-0"><i class="bi bi-bar-chart-steps me-2 text-danger"></i>SHAP Anomaly Drivers</h5>
+                <small class="text-muted">Feature Contributions</small>
+            </div>
+            <div style="height: 320px; position: relative;">
+                <canvas id="shapCanvas"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Behaviour Evolution Timeline & Heatmap -->
+<div class="row g-4 mb-4">
+    <!-- Evolution Timeline -->
+    <div class="col-lg-7">
+        <div class="glass-panel p-4 h-100">
+            <h5 class="fw-bold mb-3"><i class="bi bi-hr me-2 text-info"></i>Profile Evolution Timeline</h5>
+            
+            <div class="position-relative ps-4 border-start border-secondary border-opacity-50 ms-2 my-3">
+                {% for item in analysis.timeline %}
+                <div class="mb-4 position-relative">
+                    <div class="position-absolute start-0 top-0 translate-middle-x bg-primary rounded-circle" style="width: 12px; height: 12px; margin-left: -25px; margin-top: 5px;"></div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="badge bg-secondary bg-opacity-50 text-info">{{ item.stage }}</span>
+                        <small class="text-muted">{{ item.period }}</small>
+                    </div>
+                    <div class="fw-bold text-white mt-1">{{ item.status }}</div>
+                    <small class="text-muted">Trust Index: <b>{{ item.trust }}</b> (Phase: {{ item.phase }})</small>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Posting Heatmap -->
+    <div class="col-lg-5">
+        <div class="glass-panel p-4 h-100">
+            <h5 class="fw-bold mb-3"><i class="bi bi-grid-3x3-gap-fill me-2 text-success"></i>Weekly Activity Heatmap</h5>
+            <p class="text-muted small">24-hour distribution showing posting frequency & consistency.</p>
+            
+            <div class="mt-4">
+                {% for day_row in analysis.heatmap.matrix %}
+                <div class="d-flex align-items-center gap-1 mb-2">
+                    <small class="text-muted fw-bold" style="width: 35px;">{{ day_row.day }}</small>
+                    <div class="d-flex gap-1 flex-grow-1">
+                        {% for val in day_row.hours %}
+                        <div class="heatmap-cell heat-level-{{ val }} flex-grow-1" title="Hour {{ loop.index0 }}: Level {{ val }}"></div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center mt-3 pt-2 border-top border-secondary border-opacity-25 small text-muted">
+                <span>00:00 (Night)</span>
+                <span>12:00 (Noon)</span>
+                <span>23:00 (Night)</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Sub-Scores & Similar Profiles -->
+<div class="row g-4">
+    <!-- Sub-scores Grid -->
+    <div class="col-lg-8">
+        <div class="glass-panel p-4">
+            <h5 class="fw-bold mb-3"><i class="bi bi-speedometer me-2 text-warning"></i>Intelligence Sub-Score Breakdown</h5>
+            
+            <div class="row g-3">
+                {% for key, val in analysis.sub_scores.items() %}
+                <div class="col-md-4">
+                    <div class="glass-card p-3">
+                        <small class="text-muted text-uppercase fw-bold" style="font-size:0.7rem;">{{ key.replace('_', ' ') }}</small>
+                        <div class="d-flex justify-content-between align-items-center mt-2">
+                            <h4 class="fw-bold mb-0" style="color: {% if val >= 75 %}#22c55e{% elif val >= 50 %}#eab308{% else %}#ef4444{% endif %};">{{ "%.1f"|format(val) }}</h4>
+                            <small class="text-muted">/ 100</small>
+                        </div>
+                        <div class="progress mt-2" style="height: 4px;">
+                            <div class="progress-bar" style="width: {{ val }}%; background-color: {% if val >= 75 %}#22c55e{% elif val >= 50 %}#eab308{% else %}#ef4444{% endif %};"></div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Target Attributes Card -->
+    <div class="col-lg-4">
+        <div class="glass-panel p-4">
+            <h5 class="fw-bold mb-3"><i class="bi bi-card-checklist me-2 text-primary"></i>Raw Profile Parameters</h5>
+            <ul class="list-group list-group-flush bg-transparent small">
+                <li class="list-group-item bg-transparent text-white border-secondary border-opacity-25 d-flex justify-content-between">
+                    <span class="text-muted">Followers / Following</span>
+                    <span class="fw-bold">{{ analysis.followers_count|format_num }} / {{ analysis.following_count|format_num }}</span>
+                </li>
+                <li class="list-group-item bg-transparent text-white border-secondary border-opacity-25 d-flex justify-content-between">
+                    <span class="text-muted">Total Posts</span>
+                    <span class="fw-bold">{{ analysis.posts_count|format_num }}</span>
+                </li>
+                <li class="list-group-item bg-transparent text-white border-secondary border-opacity-25 d-flex justify-content-between">
+                    <span class="text-muted">Account Age</span>
+                    <span class="fw-bold">{{ analysis.account_age_days }} days</span>
+                </li>
+                <li class="list-group-item bg-transparent text-white border-secondary border-opacity-25 d-flex justify-content-between">
+                    <span class="text-muted">Posting Frequency</span>
+                    <span class="fw-bold">{{ "%.1f"|format(analysis.posting_frequency_per_day) }} posts/day</span>
+                </li>
+                <li class="list-group-item bg-transparent text-white border-secondary border-opacity-25 d-flex justify-content-between">
+                    <span class="text-muted">Avg Engagement / Post</span>
+                    <span class="fw-bold">{{ "%.1f"|format(analysis.avg_likes_per_post + analysis.avg_retweets_per_post) }}</span>
+                </li>
+                <li class="list-group-item bg-transparent text-white border-secondary border-opacity-25 d-flex justify-content-between">
+                    <span class="text-muted">Verified Badge</span>
+                    <span class="badge {% if analysis.is_verified %}bg-success{% else %}bg-secondary{% endif %}">{% if analysis.is_verified %}Yes{% else %}No{% endif %}</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const radarData = {{ analysis.trust_radar|tojson }};
+    const shapData = {{ analysis.shap_importance|tojson }};
+
+    renderTrustRadar('trustRadarCanvas', radarData);
+    renderShapChart('shapCanvas', shapData);
+});
+</script>
+{% endblock %}

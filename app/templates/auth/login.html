@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block auth_content %}
+<div class="glass-panel p-4 p-sm-5 rounded-4 shadow-lg" style="max-width: 440px; width: 100%;">
+    <div class="text-center mb-4">
+        <i class="bi bi-shield-lock-fill display-3 text-primary"></i>
+        <h3 class="fw-bold mt-2 gradient-text">PROFILE SHIELD AI</h3>
+        <p class="small text-muted">
+            Next Generation Social Profile Trust Intelligence
+        </p>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    {% for category, message in messages %}
+    <div class="alert alert-{{ category }} alert-dismissible fade show border-0 glass-card" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+
+    <form method="POST" action="{{ url_for('auth.login') }}">
+        <div class="mb-3">
+            <label class="form-label small fw-bold text-muted">EMAIL ADDRESS</label>
+            <div class="input-group">
+                <span class="input-group-text bg-transparent border-secondary border-opacity-50 text-muted">
+                    <i class="bi bi-envelope"></i>
+                </span>
+                <input type="email" name="email" class="form-control bg-transparent border-secondary border-opacity-50 text-white" placeholder="admin@profileshield.ai" required>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label small fw-bold text-muted">PASSWORD</label>
+            <div class="input-group">
+                <span class="input-group-text bg-transparent border-secondary border-opacity-50 text-muted">
+                    <i class="bi bi-key"></i>
+                </span>
+                <input type="password" name="password" class="form-control bg-transparent border-secondary border-opacity-50 text-white" placeholder="••••••••" required>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div class="form-check">
+                <input type="checkbox" name="remember" class="form-check-input" id="rememberMe">
+                <label class="form-check-label small text-muted" for="rememberMe">
+                    Remember me
+                </label>
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-cyber-primary w-100 py-2.5 fw-bold rounded-3 shadow">
+            Sign In to Platform <i class="bi bi-arrow-right ms-1"></i>
+        </button>
+    </form>
+
+    <div class="text-center mt-4">
+        <span class="small text-muted">Don't have an account?</span>
+        <a href="{{ url_for('auth.register') }}" class="text-primary text-decoration-none small fw-bold ms-1">
+            Register Now
+        </a>
+    </div>
+
+    <div class="mt-4 p-3 glass-card rounded-3 text-center border border-info border-opacity-25" style="font-size:0.78rem;">
+        <div class="fw-bold text-info mb-2">
+            <i class="bi bi-info-circle me-1"></i> Demo Analyst Credentials
+        </div>
+        <div class="text-muted">
+            <strong>Admin:</strong> admin@profileshield.ai / Admin123!
+        </div>
+        <div class="text-muted">
+            <strong>Analyst:</strong> analyst@profileshield.ai / Analyst123!
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+
+{% block page_title %}ML Model Benchmark & Retraining Suite{% endblock %}
+{% block page_subtitle %}Automated 5-Fold Cross Validation & Grid Search hyperparameter optimization across RF, XGBoost, LR, and SVM{% endblock %}
+
+{% block content %}
+<!-- Retrain Banner Action -->
+<div class="glass-panel p-4 mb-4 border border-info border-opacity-25 d-flex justify-content-between align-items-center">
+    <div>
+        <h5 class="fw-bold mb-1"><i class="bi bi-cpu-fill text-info me-2"></i>Multi-Model Auto-Benchmarking Pipeline</h5>
+        <p class="text-muted small mb-0">Trains <b>Random Forest</b>, <b>XGBoost</b>, <b>Logistic Regression</b>, and <b>Support Vector Machine (SVM)</b>. Auto-selects highest F1-Score model for production.</p>
+    </div>
+    
+    <form method="POST" action="{{ url_for('admin.retrain_model') }}">
+        <button type="submit" class="btn btn-primary px-4 py-2 fw-bold shadow">
+            <i class="bi bi-arrow-repeat me-1"></i> Retrain & Select Best Model
+        </button>
+    </form>
+</div>
+
+<!-- Active Model Performance Overview -->
+{% if active_model %}
+<div class="row g-4 mb-4">
+    <div class="col-md-3">
+        <div class="glass-panel p-3 text-center border-start border-success border-4">
+            <small class="text-muted fw-bold text-uppercase" style="font-size:0.7rem;">Active Production Algorithm</small>
+            <h4 class="fw-bold text-success mt-1 mb-0">{{ active_model.model_name }}</h4>
+            <small class="text-muted" style="font-size:0.75rem;">{{ active_model.version }}</small>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="glass-panel p-3 text-center">
+            <small class="text-muted fw-bold text-uppercase" style="font-size:0.7rem;">Accuracy</small>
+            <h3 class="fw-bold text-white mt-1 mb-0">{{ "%.4f"|format(active_model.accuracy) }}</h3>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="glass-panel p-3 text-center">
+            <small class="text-muted fw-bold text-uppercase" style="font-size:0.7rem;">Precision</small>
+            <h3 class="fw-bold text-white mt-1 mb-0">{{ "%.4f"|format(active_model.precision) }}</h3>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="glass-panel p-3 text-center">
+            <small class="text-muted fw-bold text-uppercase" style="font-size:0.7rem;">Recall</small>
+            <h3 class="fw-bold text-white mt-1 mb-0">{{ "%.4f"|format(active_model.recall) }}</h3>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="glass-panel p-3 text-center border-start border-primary border-4">
+            <small class="text-muted fw-bold text-uppercase" style="font-size:0.7rem;">F1-Score / ROC-AUC</small>
+            <h3 class="fw-bold text-primary mt-1 mb-0">{{ "%.4f"|format(active_model.f1_score) }} <small class="fs-6 text-muted">/ {{ "%.4f"|format(active_model.roc_auc) }}</small></h3>
+        </div>
+    </div>
+</div>
+
+<!-- Multi-Model Comparison Table -->
+<div class="glass-panel p-4 mb-4">
+    <h5 class="fw-bold mb-3"><i class="bi bi-bar-chart-line-fill me-2 text-warning"></i>Model Benchmark Evaluation Matrix</h5>
+    
+    <div class="table-responsive">
+        <table class="table table-dark table-hover align-middle mb-0">
+            <thead>
+                <tr class="text-muted small border-bottom border-secondary border-opacity-50">
+                    <th>ALGORITHM</th>
+                    <th>ACCURACY</th>
+                    <th>PRECISION</th>
+                    <th>RECALL</th>
+                    <th>F1 SCORE</th>
+                    <th>ROC AUC</th>
+                    <th>STATUS</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if active_model.all_models_comparison %}
+                    {% for m_name, m_stats in active_model.all_models_comparison.items() %}
+                    <tr {% if m_name == active_model.model_name %}class="table-active border-start border-success border-3"{% endif %}>
+                        <td class="fw-bold">
+                            <i class="bi bi-cpu me-2 text-info"></i> {{ m_name }}
+                        </td>
+                        <td>{{ "%.4f"|format(m_stats.accuracy) }}</td>
+                        <td>{{ "%.4f"|format(m_stats.precision) }}</td>
+                        <td>{{ "%.4f"|format(m_stats.recall) }}</td>
+                        <td class="fw-bold text-primary">{{ "%.4f"|format(m_stats.f1_score) }}</td>
+                        <td>{{ "%.4f"|format(m_stats.roc_auc) }}</td>
+                        <td>
+                            {% if m_name == active_model.model_name %}
+                            <span class="badge bg-success"><i class="bi bi-check-circle-fill me-1"></i> Active Model</span>
+                            {% else %}
+                            <span class="badge bg-secondary">Evaluated</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Confusion Matrix Display -->
+<div class="row g-4">
+    <div class="col-lg-6">
+        <div class="glass-panel p-4 h-100">
+            <h5 class="fw-bold mb-3"><i class="bi bi-grid-2x2 me-2 text-primary"></i>Active Model Confusion Matrix</h5>
+            <p class="text-muted small">True vs Predicted classification counts on validation split.</p>
+
+            {% if active_model.confusion_matrix %}
+            <div class="row g-2 text-center my-4">
+                <div class="col-6">
+                    <div class="glass-card p-4 border border-success border-opacity-50">
+                        <small class="text-muted fw-bold d-block">TRUE NEGATIVE (Genuine)</small>
+                        <span class="display-5 fw-bold text-success">{{ active_model.confusion_matrix[0][0] }}</span>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="glass-card p-4 border border-warning border-opacity-50">
+                        <small class="text-muted fw-bold d-block">FALSE POSITIVE (False Alarm)</small>
+                        <span class="display-5 fw-bold text-warning">{{ active_model.confusion_matrix[0][1] }}</span>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="glass-card p-4 border border-warning border-opacity-50">
+                        <small class="text-muted fw-bold d-block">FALSE NEGATIVE (Missed Bot)</small>
+                        <span class="display-5 fw-bold text-warning">{{ active_model.confusion_matrix[1][0] }}</span>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="glass-card p-4 border border-danger border-opacity-50">
+                        <small class="text-muted fw-bold d-block">TRUE POSITIVE (Detected Bot)</small>
+                        <span class="display-5 fw-bold text-danger">{{ active_model.confusion_matrix[1][1] }}</span>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Retraining History Registry -->
+    <div class="col-lg-6">
+        <div class="glass-panel p-4 h-100">
+            <h5 class="fw-bold mb-3"><i class="bi bi-clock-history me-2 text-info"></i>Retraining History</h5>
+            <div class="table-responsive">
+                <table class="table table-dark table-hover align-middle mb-0">
+                    <thead>
+                        <tr class="text-muted small border-bottom border-secondary border-opacity-50">
+                            <th>VERSION</th>
+                            <th>MODEL</th>
+                            <th>F1 SCORE</th>
+                            <th>DATE</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for m in all_models %}
+                        <tr>
+                            <td class="font-monospace small">{{ m.version }}</td>
+                            <td class="fw-bold">{{ m.model_name }}</td>
+                            <td class="text-primary fw-bold">{{ "%.4f"|format(m.f1_score) }}</td>
+                            <td class="text-muted small">{{ m.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

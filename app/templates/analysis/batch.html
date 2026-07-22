@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block page_title %}Batch CSV Profile Scanner{% endblock %}
+{% block page_subtitle %}Upload CSV datasets to run automated trust intelligence scans in bulk{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+    <!-- Uploader Card -->
+    <div class="col-lg-6">
+        <div class="glass-panel p-4 h-100">
+            <h5 class="fw-bold mb-3"><i class="bi bi-file-earmark-arrow-up-fill me-2 text-primary"></i>Upload CSV Dataset</h5>
+            <p class="text-muted small mb-4">Select a `.csv` file containing profile attributes to process multiple accounts simultaneously.</p>
+
+            <form method="POST" action="{{ url_for('batch.upload_csv') }}" enctype="multipart/form-data">
+                <div class="mb-4">
+                    <label class="form-label text-muted small fw-bold">SELECT CSV FILE</label>
+                    <input type="file" name="file" class="form-control bg-transparent border-secondary text-white" accept=".csv" required>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100 py-2 fw-bold shadow">
+                    <i class="bi bi-cpu-fill me-2"></i> Start Automated Batch AI Assessment
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- CSV Format Specification Card -->
+    <div class="col-lg-6">
+        <div class="glass-panel p-4 h-100 border-start border-info border-4">
+            <h5 class="fw-bold mb-3"><i class="bi bi-file-code-fill me-2 text-info"></i>Required CSV Columns</h5>
+            <p class="text-muted small mb-3">Ensure your CSV includes the following column headers:</p>
+
+            <div class="bg-dark p-3 rounded-3 font-monospace small text-info border border-secondary border-opacity-25 mb-3" style="max-height: 180px; overflow-y: auto;">
+                username, display_name, platform, followers_count, following_count, posts_count, account_age_days, has_profile_pic, has_bio, is_verified, has_url, avg_likes_per_post, avg_retweets_per_post, posting_frequency_per_day
+            </div>
+
+            <small class="text-muted"><i class="bi bi-info-circle me-1"></i> Values for boolean flags (`has_profile_pic`, `has_bio`, `is_verified`, `has_url`) should be `1` (Yes) or `0` (No).</small>
+        </div>
+    </div>
+</div>
+{% endblock %}

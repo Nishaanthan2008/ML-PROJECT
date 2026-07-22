@@ -1,0 +1,401 @@
+/* PROFILE SHIELD AI - Modern Cyber Security AI Dashboard Design System */
+
+:root {
+  --font-primary: 'Inter', system-ui, -apple-system, sans-serif;
+  --bg-primary: #0b0f19;
+  --bg-surface: rgba(15, 23, 42, 0.75);
+  --bg-surface-solid: #0f172a;
+  --bg-card: rgba(30, 41, 59, 0.65);
+  --bg-card-hover: rgba(30, 41, 59, 0.85);
+  --border-color: rgba(255, 255, 255, 0.1);
+  --border-color-glow: rgba(99, 102, 241, 0.4);
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --accent-primary: #6366f1;
+  --accent-secondary: #a855f7;
+  --accent-cyan: #06b6d4;
+  --accent-gradient: linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%);
+  --accent-gradient-cyber: linear-gradient(135deg, #06b6d4 0%, #3b82f6 50%, #6366f1 100%);
+  --accent-glow: rgba(99, 102, 241, 0.25);
+  
+  --risk-low: #22c55e;
+  --risk-moderate: #eab308;
+  --risk-high: #f97316;
+  --risk-critical: #ef4444;
+  
+  --gauge-stroke-low: #22c55e;
+  --gauge-stroke-moderate: #eab308;
+  --gauge-stroke-high: #f97316;
+  --gauge-stroke-critical: #ef4444;
+}
+
+[data-theme="light"] {
+  --bg-primary: #f1f5f9;
+  --bg-surface: rgba(255, 255, 255, 0.85);
+  --bg-surface-solid: #ffffff;
+  --bg-card: rgba(255, 255, 255, 0.9);
+  --bg-card-hover: #ffffff;
+  --border-color: rgba(0, 0, 0, 0.08);
+  --border-color-glow: rgba(79, 70, 229, 0.3);
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  --accent-primary: #4f46e5;
+  --accent-secondary: #7c3aed;
+  --accent-cyan: #0284c7;
+  --accent-gradient: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #db2777 100%);
+  --accent-glow: rgba(79, 70, 229, 0.15);
+}
+
+body {
+  font-family: var(--font-primary);
+  background-color: var(--bg-primary);
+  color: var(--text-main);
+  min-height: 100vh;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  overflow-x: hidden;
+}
+
+/* Cyber Glassmorphism Panels */
+.glass-panel {
+  background: var(--bg-card);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.35);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.glass-panel:hover {
+  border-color: var(--border-color-glow);
+}
+
+.glass-card {
+  background: var(--bg-card);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.glass-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--border-color-glow);
+  box-shadow: 0 12px 35px -8px var(--accent-glow);
+}
+
+/* Gradient Text & Highlights */
+.gradient-text {
+  background: var(--accent-gradient);
+
+  /* Standard property */
+  background-clip: text;
+
+  /* WebKit compatibility */
+  -webkit-background-clip: text;
+
+  /* Fallback */
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+
+  font-weight: 800;
+}
+
+.gradient-text-cyber {
+  background: var(--accent-gradient-cyber);
+
+  /* Standard property */
+  background-clip: text;
+
+  /* WebKit compatibility */
+  -webkit-background-clip: text;
+
+  /* Fallback */
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+
+  font-weight: 800;
+}
+/* Sidebar Navigation */
+.sidebar {
+  width: 260px;
+  background: var(--bg-surface-solid);
+  border-right: 1px solid var(--border-color);
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 1040;
+  padding: 1.5rem 1rem;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.3s ease-in-out;
+}
+
+.main-content {
+  margin-left: 260px;
+  padding: 2rem;
+  min-height: 100vh;
+  transition: margin-left 0.3s ease-in-out;
+}
+
+.nav-link-custom {
+  color: var(--text-muted);
+  font-weight: 500;
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  margin-bottom: 0.35rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+
+.nav-link-custom:hover, .nav-link-custom.active {
+  color: var(--text-main);
+  background: var(--accent-glow);
+  border-left: 4px solid var(--accent-primary);
+}
+
+@media (max-width: 991.98px) {
+  .sidebar {
+    transform: translateX(-100%);
+  }
+  .sidebar.show {
+    transform: translateX(0);
+  }
+  .main-content {
+    margin-left: 0;
+    padding: 1.25rem;
+  }
+  .sidebar-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    z-index: 1030;
+    display: none;
+  }
+  .sidebar-backdrop.show {
+    display: block;
+  }
+}
+
+/* Score Dynamic Classes (Fixing inline Jinja inside CSS) */
+.text-score-excellent { color: var(--risk-low) !important; }
+.text-score-good { color: var(--risk-moderate) !important; }
+.text-score-moderate { color: var(--risk-high) !important; }
+.text-score-critical { color: var(--risk-critical) !important; }
+
+.bg-score-excellent { background-color: var(--risk-low) !important; }
+.bg-score-good { background-color: var(--risk-moderate) !important; }
+.bg-score-moderate { background-color: var(--risk-high) !important; }
+.bg-score-critical { background-color: var(--risk-critical) !important; }
+
+.gauge-stroke-excellent { stroke: var(--risk-low) !important; }
+.gauge-stroke-good { stroke: var(--risk-moderate) !important; }
+.gauge-stroke-moderate { stroke: var(--risk-high) !important; }
+.gauge-stroke-critical { stroke: var(--risk-critical) !important; }
+
+/* Risk Badges */
+.badge-risk-low { background-color: var(--risk-low); color: #000; font-weight: 700; }
+.badge-risk-moderate { background-color: var(--risk-moderate); color: #000; font-weight: 700; }
+.badge-risk-high { background-color: var(--risk-high); color: #fff; font-weight: 700; }
+.badge-risk-critical { background-color: var(--risk-critical); color: #fff; font-weight: 700; }
+
+/* Buttons */
+.btn-cyber-primary {
+  background: var(--accent-gradient);
+  border: none;
+  color: #ffffff;
+  font-weight: 600;
+  box-shadow: 0 4px 15px rgba(99, 102, 241, 0.35);
+  transition: all 0.25s ease;
+}
+
+.btn-cyber-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5);
+  color: #ffffff;
+}
+
+/* Form Inputs */
+.form-control, .form-select {
+  border-radius: 10px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-control:focus, .form-select:focus {
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 0.25rem var(--accent-glow);
+}
+
+/* Gauge Ring Animation */
+.trust-score-gauge {
+  position: relative;
+  width: 160px;
+  height: 160px;
+  margin: 0 auto;
+}
+
+.trust-score-gauge svg {
+  transform: rotate(-90deg);
+}
+
+.trust-score-gauge circle {
+  fill: none;
+  stroke-width: 12;
+  stroke-linecap: round;
+}
+
+.gauge-bg {
+  stroke: var(--border-color);
+}
+
+.gauge-fill {
+  transition: stroke-dashoffset 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.gauge-center-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+
+/* Heatmap Grid */
+.heatmap-cell {
+  aspect-ratio: 1;
+  border-radius: 4px;
+  transition: transform 0.15s ease;
+  cursor: pointer;
+}
+
+.heatmap-cell:hover {
+  transform: scale(1.3);
+  z-index: 10;
+}
+
+.heat-level-0 { background-color: rgba(148, 163, 184, 0.15); }
+.heat-level-1 { background-color: rgba(99, 102, 241, 0.35); }
+.heat-level-2 { background-color: rgba(99, 102, 241, 0.60); }
+.heat-level-3 { background-color: rgba(99, 102, 241, 0.85); }
+.heat-level-4 { background-color: #6366f1; box-shadow: 0 0 8px #6366f1; }
+
+/* Digital DNA Badge */
+.digital-dna-badge {
+  background: var(--bg-surface-solid);
+  border: 1px dashed var(--accent-primary);
+  padding: 0.4rem 0.8rem;
+  border-radius: 8px;
+  font-family: monospace;
+  font-weight: 700;
+  color: var(--accent-primary);
+  letter-spacing: 1px;
+}
+
+/* Toast Notifications Container */
+#toastContainer {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  z-index: 1090;
+}
+/* ==========================
+   PROFILE SHIELD FINAL FIX
+========================== */
+
+html,
+body {
+    background: var(--bg-primary) !important;
+    color: var(--text-main) !important;
+}
+
+/* Global text */
+body,
+p,
+span,
+small,
+div,
+td,
+th,
+label,
+li,
+a,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    color: var(--text-main) !important;
+}
+
+.text-muted{
+    color:#94a3b8 !important;
+}
+
+/* Inputs */
+.form-control,
+.form-select{
+    background:#1e293b !important;
+    color:#ffffff !important;
+    border:1px solid #475569 !important;
+}
+
+.form-control::placeholder{
+    color:#94a3b8 !important;
+}
+
+.input-group-text{
+    background:#1e293b !important;
+    color:#ffffff !important;
+}
+
+/* Tables */
+.table{
+    color:#ffffff !important;
+}
+
+.table th,
+.table td{
+    color:#ffffff !important;
+}
+
+/* Cards */
+.glass-panel,
+.glass-card{
+    color:#ffffff !important;
+}
+
+/* Dropdown */
+.dropdown-menu{
+    background:#1e293b !important;
+}
+
+.dropdown-item{
+    color:#ffffff !important;
+}
+
+.dropdown-item:hover{
+    background:#334155 !important;
+}
+
+/* Bootstrap Overrides */
+.text-white{
+    color:#ffffff !important;
+}
+
+.text-dark{
+    color:#0f172a !important;
+}
+
+.bg-transparent{
+    color:#ffffff !important;
+}
