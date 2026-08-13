@@ -133,6 +133,8 @@ def generate_synthetic_profile_dataset(num_samples=1200, random_seed=42):
 
         data.append({
             'username': f"user_{i+1000}_{username_digits_count}",
+            'display_name': f"User {i+1000}",
+            'platform': 'Twitter/X',
             'account_age_days': account_age_days,
             'followers_count': followers_count,
             'following_count': following_count,
@@ -149,6 +151,7 @@ def generate_synthetic_profile_dataset(num_samples=1200, random_seed=42):
             'follower_following_ratio': ff_ratio,
             'engagement_rate': engagement_rate,
             'profile_completeness': completeness,
+            'label': is_bot_label,
             'is_bot': is_bot_label
         })
 

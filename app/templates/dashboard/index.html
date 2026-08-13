@@ -1,408 +1,261 @@
 {% extends "base.html" %}
 
 {% block page_title %}Security Intelligence Dashboard{% endblock %}
-{% block page_subtitle %}Real-time Monitoring & Social Profile Risk Analytics Overview{% endblock %}
+{% block page_subtitle %}Real-time Monitoring & Social Profile Risk Analytics{% endblock %}
 
 {% block content %}
 
-<!-- KPI Counter Cards -->
+<!-- ══ KPI Counter Cards ══════════════════════════════════════════════════ -->
 <div class="row g-4 mb-4">
 
     <div class="col-xl-3 col-sm-6">
-        <div class="glass-panel p-3 d-flex align-items-center gap-3">
-            <div class="rounded-3 p-3 bg-primary bg-opacity-25 text-primary">
+        <div class="kpi-card glass-panel p-3 d-flex align-items-center gap-3">
+            <div class="kpi-icon rounded-3 p-3 bg-primary bg-opacity-20 text-primary">
                 <i class="bi bi-shield-check fs-2"></i>
             </div>
             <div>
-                <small class="text-muted fw-bold d-block text-uppercase" style="font-size:0.7rem;">
-                    Total Scanned Profiles
+                <small class="text-muted fw-bold d-block text-uppercase kpi-label">
+                    {% if current_user.is_admin() %}Total Platform Scans{% else %}My Profile Scans{% endif %}
                 </small>
-                <h3 class="fw-bold mb-0 animate-counter"
-                    data-target="{{ total_analyses }}">
-                    0
-                </h3>
+                <h3 class="fw-bold mb-0 animate-counter" data-target="{{ total_analyses }}">0</h3>
             </div>
         </div>
     </div>
 
     <div class="col-xl-3 col-sm-6">
-        <div class="glass-panel p-3 d-flex align-items-center gap-3">
-            <div class="rounded-3 p-3 bg-success bg-opacity-25 text-success">
+        <div class="kpi-card glass-panel p-3 d-flex align-items-center gap-3">
+            <div class="kpi-icon rounded-3 p-3 bg-success bg-opacity-20 text-success">
                 <i class="bi bi-patch-check-fill fs-2"></i>
             </div>
             <div>
-                <small class="text-muted fw-bold d-block text-uppercase" style="font-size:0.7rem;">
-                    Average Trust Score
-                </small>
-
+                <small class="text-muted fw-bold d-block text-uppercase kpi-label">Average Trust Score</small>
                 <h3 class="fw-bold mb-0 text-success">
-                    <span class="animate-counter"
-                          data-target="{{ avg_trust_score|int }}">0</span>
-                    <small class="fs-6">/100</small>
+                    <span class="animate-counter" data-target="{{ avg_trust_score|int }}">0</span>
+                    <small class="fs-6 text-muted">/100</small>
                 </h3>
-
             </div>
         </div>
     </div>
 
     <div class="col-xl-3 col-sm-6">
-        <div class="glass-panel p-3 d-flex align-items-center gap-3">
-            <div class="rounded-3 p-3 bg-danger bg-opacity-25 text-danger">
+        <div class="kpi-card glass-panel p-3 d-flex align-items-center gap-3">
+            <div class="kpi-icon rounded-3 p-3 bg-danger bg-opacity-20 text-danger">
                 <i class="bi bi-exclamation-triangle-fill fs-2"></i>
             </div>
-
             <div>
-                <small class="text-muted fw-bold d-block text-uppercase"
-                       style="font-size:0.7rem;">
-                    High / Critical Risk
-                </small>
-
-                <h3 class="fw-bold mb-0 text-danger animate-counter"
-                    data-target="{{ high_risk + critical_risk }}">
-                    0
-                </h3>
-
+                <small class="text-muted fw-bold d-block text-uppercase kpi-label">High / Critical Risk</small>
+                <h3 class="fw-bold mb-0 text-danger animate-counter" data-target="{{ high_risk + critical_risk }}">0</h3>
             </div>
         </div>
     </div>
 
     <div class="col-xl-3 col-sm-6">
-        <div class="glass-panel p-3 d-flex align-items-center gap-3">
-            <div class="rounded-3 p-3 bg-info bg-opacity-25 text-info">
+        <div class="kpi-card glass-panel p-3 d-flex align-items-center gap-3">
+            <div class="kpi-icon rounded-3 p-3 bg-info bg-opacity-20 text-info">
                 <i class="bi bi-cpu-fill fs-2"></i>
             </div>
-
             <div>
-                <small class="text-muted fw-bold d-block text-uppercase"
-                       style="font-size:0.7rem;">
-                    Active ML Model
+                <small class="text-muted fw-bold d-block text-uppercase kpi-label">
+                    {% if current_user.is_admin() %}Total Users{% else %}Active ML Model{% endif %}
                 </small>
-
-                <h6 class="fw-bold mb-0 text-info">
-                    {{ active_model.model_name if active_model else 'XGBoost Baseline' }}
-                </h6>
-
-                <small class="text-muted" style="font-size:0.75rem;">
-                    F1:
-                    {{ "%.4f"|format(active_model.f1_score) if active_model else "0.9650" }}
-                </small>
-
+                {% if current_user.is_admin() %}
+                    <h3 class="fw-bold mb-0 text-info animate-counter" data-target="{{ total_users or 0 }}">0</h3>
+                {% else %}
+                    <h6 class="fw-bold mb-0 text-info">{{ active_model.model_name if active_model else 'XGBoost Baseline' }}</h6>
+                    <small class="text-muted" style="font-size:0.75rem;">
+                        F1: {{ "%.4f"|format(active_model.f1_score) if active_model else "0.9650" }}
+                    </small>
+                {% endif %}
             </div>
         </div>
     </div>
 
 </div>
 
-<!-- Charts -->
+<!-- ══ Charts & Quick Scanner ════════════════════════════════════════════ -->
 <div class="row g-4 mb-4">
 
+    <!-- Risk Distribution Doughnut -->
     <div class="col-lg-5">
         <div class="glass-panel p-4 h-100">
-
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h5 class="fw-bold mb-0">
-                    <i class="bi bi-pie-chart-fill me-2 text-primary"></i>
-                    Risk Intelligence Distribution
+                    <i class="bi bi-pie-chart-fill me-2 text-primary"></i>Risk Distribution
                 </h5>
-
-                <span class="badge bg-secondary">
-                    Live
+                <span class="badge" style="background:rgba(99,102,241,0.25);color:#a5b4fc;">
+                    {% if current_user.is_admin() %}Global{% else %}My Scans{% endif %}
                 </span>
             </div>
-
-            <div style="height:250px;position:relative;">
+            <div style="height:260px;position:relative;">
                 <canvas id="dashboardRiskDoughnut"></canvas>
             </div>
-
+            <!-- Legend -->
+            <div class="d-flex justify-content-center gap-3 mt-3 flex-wrap">
+                <span class="d-flex align-items-center gap-1 small">
+                    <span style="width:10px;height:10px;border-radius:50%;background:#22c55e;display:inline-block;"></span>
+                    Low <strong>({{ low_risk }})</strong>
+                </span>
+                <span class="d-flex align-items-center gap-1 small">
+                    <span style="width:10px;height:10px;border-radius:50%;background:#eab308;display:inline-block;"></span>
+                    Moderate <strong>({{ moderate_risk }})</strong>
+                </span>
+                <span class="d-flex align-items-center gap-1 small">
+                    <span style="width:10px;height:10px;border-radius:50%;background:#f97316;display:inline-block;"></span>
+                    High <strong>({{ high_risk }})</strong>
+                </span>
+                <span class="d-flex align-items-center gap-1 small">
+                    <span style="width:10px;height:10px;border-radius:50%;background:#ef4444;display:inline-block;"></span>
+                    Critical <strong>({{ critical_risk }})</strong>
+                </span>
+            </div>
         </div>
     </div>
 
-    <!-- Quick Scan -->
-
+    <!-- Quick Profile Scanner -->
     <div class="col-lg-7">
-
         <div class="glass-panel p-4 h-100">
-
             <div class="d-flex justify-content-between align-items-center mb-3">
-
                 <h5 class="fw-bold mb-0">
-                    <i class="bi bi-lightning-charge-fill me-2 text-warning"></i>
-                    Instant Profile Scanner
+                    <i class="bi bi-lightning-charge-fill me-2 text-warning"></i>Instant Profile Scanner
                 </h5>
-
-                <a href="{{ url_for('analysis.new_analysis') }}"
-                   class="btn btn-sm btn-outline-primary">
-                    Full Options
-                    <i class="bi bi-arrow-right"></i>
+                <a href="{{ url_for('analysis.new_analysis') }}" class="btn btn-sm btn-outline-primary">
+                    Full Options <i class="bi bi-arrow-right"></i>
                 </a>
-
             </div>
+            <p class="text-muted small mb-3">Run an AI security evaluation on any social profile handle instantly.</p>
 
-            <p class="text-muted small mb-3">
-                Run an AI security evaluation on any social profile handle instantly.
-            </p>
-
-            <form action="{{ url_for('analysis.new_analysis') }}"
-                  method="POST"
-                  class="row g-3">
-
+            <form action="{{ url_for('analysis.new_analysis') }}" method="POST" class="row g-3">
                 <div class="col-md-6">
-                    <label class="form-label text-muted small fw-bold">
-                        PROFILE HANDLE
-                    </label>
-
+                    <label class="form-label text-muted small fw-bold">PROFILE HANDLE</label>
                     <div class="input-group">
-                        <span class="input-group-text bg-transparent border-secondary text-muted">
-                            @
-                        </span>
-
-                        <input
-                            type="text"
-                            name="username"
-                            class="form-control bg-transparent border-secondary text-white"
-                            placeholder="target_username"
-                            required>
+                        <span class="input-group-text">@</span>
+                        <input type="text" name="username" class="form-control" placeholder="target_username" required>
                     </div>
                 </div>
-
                 <div class="col-md-6">
-
-                    <label class="form-label text-muted small fw-bold">
-                        PLATFORM
-                    </label>
-
-                    <select
-                        name="platform"
-                        class="form-select bg-transparent border-secondary text-white">
-
+                    <label class="form-label text-muted small fw-bold">PLATFORM</label>
+                    <select name="platform" class="form-select">
                         <option value="Twitter/X">Twitter / X</option>
                         <option value="Instagram">Instagram</option>
                         <option value="LinkedIn">LinkedIn</option>
-
                     </select>
-
                 </div>
-
                 <div class="col-md-4">
-
-                    <label class="form-label text-muted small fw-bold">
-                        FOLLOWERS
-                    </label>
-
-                    <input
-                        type="number"
-                        name="followers_count"
-                        class="form-control bg-transparent border-secondary text-white"
-                        value="1250"
-                        min="0">
-
+                    <label class="form-label text-muted small fw-bold">FOLLOWERS</label>
+                    <input type="number" name="followers_count" class="form-control" value="1250" min="0">
                 </div>
-
                 <div class="col-md-4">
-
-                    <label class="form-label text-muted small fw-bold">
-                        FOLLOWING
-                    </label>
-
-                    <input
-                        type="number"
-                        name="following_count"
-                        class="form-control bg-transparent border-secondary text-white"
-                        value="450"
-                        min="0">
-
+                    <label class="form-label text-muted small fw-bold">FOLLOWING</label>
+                    <input type="number" name="following_count" class="form-control" value="450" min="0">
                 </div>
-
                 <div class="col-md-4">
-
-                    <label class="form-label text-muted small fw-bold">
-                        ACCOUNT AGE (DAYS)
-                    </label>
-
-                    <input
-                        type="number"
-                        name="account_age_days"
-                        class="form-control bg-transparent border-secondary text-white"
-                        value="450"
-                        min="0">
-
+                    <label class="form-label text-muted small fw-bold">ACCOUNT AGE (DAYS)</label>
+                    <input type="number" name="account_age_days" class="form-control" value="450" min="0">
                 </div>
-
-                <div class="col-12 mt-4">
-
-                    <button
-                        type="submit"
-                        class="btn btn-cyber-primary w-100 py-2 fw-bold">
-
-                        <i class="bi bi-cpu-fill me-1"></i>
-
-                        Generate AI Trust Intelligence Report
-
+                <div class="col-12 mt-3">
+                    <button type="submit" class="btn btn-cyber-primary w-100 py-2 fw-bold">
+                        <i class="bi bi-cpu-fill me-1"></i> Generate AI Trust Intelligence Report
                     </button>
-
                 </div>
-
             </form>
-
         </div>
-
     </div>
 
 </div>
 
-<!-- Recent Analyses -->
-
-<div class="glass-panel p-4">
-
-    <div class="d-flex justify-content-between align-items-center mb-3">
-
-        <h5 class="fw-bold mb-0">
+<!-- ══ Recent Trust Intelligence Assessments ════════════════════════════ -->
+<div class="glass-panel p-4" style="background:#0f172a !important;">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h5 class="fw-bold mb-0" style="color:#f8fafc;">
             <i class="bi bi-clock-history me-2 text-info"></i>
             Recent Trust Intelligence Assessments
+            {% if not current_user.is_admin() %}
+                <small class="text-muted fw-normal fs-6 ms-2">(Your Scans)</small>
+            {% endif %}
         </h5>
-
-        <a href="{{ url_for('batch.history') }}"
-           class="btn btn-sm btn-outline-secondary">
-            View All History
+        <a href="{{ url_for('batch.history') }}" class="btn btn-sm btn-outline-secondary">
+            View All <i class="bi bi-arrow-right"></i>
         </a>
-
     </div>
 
     <div class="table-responsive">
-
-        <table class="table table-hover align-middle mb-0">
-
+        <table class="table table-hover align-middle mb-0" style="--bs-table-color:#f8fafc;">
             <thead>
-
-            <tr class="text-muted small">
-
-                <th>DIGITAL DNA</th>
-                <th>TARGET HANDLE</th>
-                <th>TRUST SCORE</th>
-                <th>RISK LEVEL</th>
-                <th>BEHAVIOUR CLUSTER</th>
-                <th>RECOMMENDATION</th>
-                <th>DATE</th>
-                <th class="text-end">ACTION</th>
-
-            </tr>
-
+                <tr style="border-bottom:1px solid rgba(255,255,255,0.08);">
+                    <th style="color:#94a3b8;font-size:0.7rem;letter-spacing:.5px;">DIGITAL DNA</th>
+                    <th style="color:#94a3b8;font-size:0.7rem;letter-spacing:.5px;">TARGET HANDLE</th>
+                    <th style="color:#94a3b8;font-size:0.7rem;letter-spacing:.5px;">TRUST SCORE</th>
+                    <th style="color:#94a3b8;font-size:0.7rem;letter-spacing:.5px;">RISK LEVEL</th>
+                    <th style="color:#94a3b8;font-size:0.7rem;letter-spacing:.5px;">CLUSTER</th>
+                    <th style="color:#94a3b8;font-size:0.7rem;letter-spacing:.5px;">RECOMMENDATION</th>
+                    <th style="color:#94a3b8;font-size:0.7rem;letter-spacing:.5px;">DATE</th>
+                    <th style="color:#94a3b8;font-size:0.7rem;letter-spacing:.5px;" class="text-end">ACTION</th>
+                </tr>
             </thead>
-
             <tbody>
-
-            {% for a in recent_analyses %}
-
-            <tr>
-
-                <td>
-                    <span class="digital-dna-badge">
-                        {{ a.digital_dna }}
-                    </span>
-                </td>
-
-                <td>
-
-                    <div class="fw-bold">
-                        @{{ a.username }}
-                    </div>
-
-                    <small class="text-muted">
-                        {{ a.platform }}
-                    </small>
-
-                </td>
-
-                <td>
-
-                    <div class="d-flex align-items-center gap-2">
-
-                        {% if a.trust_score >= 80 %}
-                            <span class="fw-bold fs-5 text-score-excellent">
-                        {% elif a.trust_score >= 60 %}
-                            <span class="fw-bold fs-5 text-score-good">
-                        {% elif a.trust_score >= 35 %}
-                            <span class="fw-bold fs-5 text-score-moderate">
-                        {% else %}
-                            <span class="fw-bold fs-5 text-score-critical">
-                        {% endif %}
-
-                            {{ a.trust_score|int }}
-
+                {% for a in recent_analyses %}
+                <tr style="border-bottom:1px solid rgba(255,255,255,0.05);color:#f8fafc;">
+                    <td>
+                        <span class="digital-dna-badge">{{ a.digital_dna }}</span>
+                    </td>
+                    <td>
+                        <div class="fw-bold" style="color:#f8fafc;">@{{ a.username }}</div>
+                        <small style="color:#64748b;">{{ a.platform }}</small>
+                    </td>
+                    <td>
+                        <div class="d-flex align-items-center gap-2">
+                            {% if a.trust_score >= 81 %}
+                                <span class="fw-bold fs-5" style="color:#22c55e;">
+                            {% elif a.trust_score >= 61 %}
+                                <span class="fw-bold fs-5" style="color:#eab308;">
+                            {% elif a.trust_score >= 36 %}
+                                <span class="fw-bold fs-5" style="color:#f97316;">
+                            {% else %}
+                                <span class="fw-bold fs-5" style="color:#ef4444;">
+                            {% endif %}
+                                {{ a.trust_score|int }}
+                            </span>
+                            <small style="color:#64748b;">/100</small>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="badge badge-risk-{{ a.risk_level.lower() }}">{{ a.risk_level }}</span>
+                    </td>
+                    <td>
+                        <span class="badge bg-secondary">{{ a.behaviour_cluster }}</span>
+                    </td>
+                    <td class="small" style="color:#94a3b8;">{{ a.recommendation }}</td>
+                    <td class="small" style="color:#64748b;">{{ a.created_at.strftime('%b %d, %H:%M') }}</td>
+                    <td class="text-end">
+                        <a href="{{ url_for('analysis.view_report', analysis_id=a.id) }}"
+                           class="btn btn-sm btn-outline-primary">
+                            Report <i class="bi bi-arrow-right"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="8" class="text-center py-5">
+                        <i class="bi bi-shield-exclamation display-5 d-block mb-2" style="color:#334155;"></i>
+                        <span style="color:#64748b;">
+                            {% if current_user.is_admin() %}
+                                No profile assessments recorded yet on the platform.
+                            {% else %}
+                                You haven't run any scans yet.
+                                <a href="{{ url_for('analysis.new_analysis') }}" class="text-primary">Run your first scan!</a>
+                            {% endif %}
                         </span>
-
-                        <small class="text-muted">/100</small>
-
-                    </div>
-
-                </td>
-
-                <td>
-
-                    <span class="badge badge-risk-{{ a.risk_level.lower() }}">
-                        {{ a.risk_level }}
-                    </span>
-
-                </td>
-
-                <td>
-
-                    <span class="badge bg-secondary">
-                        {{ a.behaviour_cluster }}
-                    </span>
-
-                </td>
-
-                <td class="small">
-                    {{ a.recommendation }}
-                </td>
-
-                <td class="text-muted small">
-                    {{ a.created_at.strftime('%b %d, %H:%M') }}
-                </td>
-
-                <td class="text-end">
-
-                    <a href="{{ url_for('analysis.view_report', analysis_id=a.id) }}"
-                       class="btn btn-sm btn-outline-primary">
-
-                        Report
-
-                        <i class="bi bi-arrow-right"></i>
-
-                    </a>
-
-                </td>
-
-            </tr>
-
-            {% else %}
-
-            <tr>
-
-                <td colspan="8"
-                    class="text-center text-muted py-4">
-
-                    No profile assessments recorded yet. Run a scan above!
-
-                </td>
-
-            </tr>
-
-            {% endfor %}
-
+                    </td>
+                </tr>
+                {% endfor %}
             </tbody>
-
         </table>
-
     </div>
-
 </div>
 
 {% endblock %}
 
 {% block extra_js %}
-
 <script>
 document.addEventListener("DOMContentLoaded", function () {
     renderDashboardRiskDoughnut(
@@ -414,5 +267,4 @@ document.addEventListener("DOMContentLoaded", function () {
     );
 });
 </script>
-
 {% endblock %}

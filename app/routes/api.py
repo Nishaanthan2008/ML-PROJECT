@@ -35,7 +35,7 @@ def stats_overview():
 @login_required
 def model_comparison():
     """Returns comparative metrics for RF, XGB, LR, SVM."""
-    active_model = MLModelRegistry.query.filter_by(is_active=True).first()
+    active_model = MLModelRegistry.query.filter_by(is_active=True).order_by(MLModelRegistry.created_at.desc()).first()
     if active_model and active_model.all_models_comparison:
         return jsonify(active_model.all_models_comparison)
     return jsonify({})

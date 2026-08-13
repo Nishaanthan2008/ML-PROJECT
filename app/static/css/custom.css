@@ -1,4 +1,7 @@
-/* PROFILE SHIELD AI - Modern Cyber Security AI Dashboard Design System */
+/* ==========================================================================
+   PROFILE SHIELD AI - Production Security Intelligence Dashboard
+   Dark Theme: bg=#0f172a  text=#f8fafc
+   ========================================================================== */
 
 :root {
   --font-primary: 'Inter', system-ui, -apple-system, sans-serif;
@@ -46,24 +49,42 @@
   --accent-glow: rgba(79, 70, 229, 0.15);
 }
 
+/* Default dark theme – applied always */
+html {
+  background-color: #0b0f19 !important;
+}
+
 body {
+  background-color: var(--bg-primary) !important;
+  color: var(--text-main) !important;
   font-family: var(--font-primary);
-  background-color: var(--bg-primary);
-  color: var(--text-main);
   min-height: 100vh;
   transition: background-color 0.3s ease, color 0.3s ease;
   overflow-x: hidden;
 }
 
-/* Cyber Glassmorphism Panels */
+/* Base Text Overrides */
+body, p, span, small, div, label, li, a, h1, h2, h3, h4, h5, h6 {
+  color: var(--text-main);
+}
+
+.text-muted {
+  color: var(--text-muted) !important;
+}
+
+/* ==========================================================================
+   GLASSMORPHISM PANELS & CARDS
+   ========================================================================== */
+
 .glass-panel {
-  background: var(--bg-card);
+  background: var(--bg-card) !important;
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--border-color);
   border-radius: 16px;
   box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.35);
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  color: var(--text-main) !important;
 }
 
 .glass-panel:hover {
@@ -71,12 +92,13 @@ body {
 }
 
 .glass-card {
-  background: var(--bg-card);
+  background: var(--bg-card) !important;
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--border-color);
   border-radius: 14px;
   transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s ease, border-color 0.25s ease;
+  color: var(--text-main) !important;
 }
 
 .glass-card:hover {
@@ -85,39 +107,29 @@ body {
   box-shadow: 0 12px 35px -8px var(--accent-glow);
 }
 
-/* Gradient Text & Highlights */
+/* Gradient Text */
 .gradient-text {
   background: var(--accent-gradient);
-
-  /* Standard property */
   background-clip: text;
-
-  /* WebKit compatibility */
   -webkit-background-clip: text;
-
-  /* Fallback */
-  color: transparent;
+  color: transparent !important;
   -webkit-text-fill-color: transparent;
-
   font-weight: 800;
 }
 
 .gradient-text-cyber {
   background: var(--accent-gradient-cyber);
-
-  /* Standard property */
   background-clip: text;
-
-  /* WebKit compatibility */
   -webkit-background-clip: text;
-
-  /* Fallback */
-  color: transparent;
+  color: transparent !important;
   -webkit-text-fill-color: transparent;
-
   font-weight: 800;
 }
-/* Sidebar Navigation */
+
+/* ==========================================================================
+   SIDEBAR & LAYOUT
+   ========================================================================== */
+
 .sidebar {
   width: 260px;
   background: var(--bg-surface-solid);
@@ -153,7 +165,8 @@ body {
   text-decoration: none;
 }
 
-.nav-link-custom:hover, .nav-link-custom.active {
+.nav-link-custom:hover, 
+.nav-link-custom.active {
   color: var(--text-main);
   background: var(--accent-glow);
   border-left: 4px solid var(--accent-primary);
@@ -186,7 +199,10 @@ body {
   }
 }
 
-/* Score Dynamic Classes (Fixing inline Jinja inside CSS) */
+/* ==========================================================================
+   SCORES & RISK BADGES
+   ========================================================================== */
+
 .text-score-excellent { color: var(--risk-low) !important; }
 .text-score-good { color: var(--risk-moderate) !important; }
 .text-score-moderate { color: var(--risk-high) !important; }
@@ -202,17 +218,19 @@ body {
 .gauge-stroke-moderate { stroke: var(--risk-high) !important; }
 .gauge-stroke-critical { stroke: var(--risk-critical) !important; }
 
-/* Risk Badges */
 .badge-risk-low { background-color: var(--risk-low); color: #000; font-weight: 700; }
 .badge-risk-moderate { background-color: var(--risk-moderate); color: #000; font-weight: 700; }
 .badge-risk-high { background-color: var(--risk-high); color: #fff; font-weight: 700; }
 .badge-risk-critical { background-color: var(--risk-critical); color: #fff; font-weight: 700; }
 
-/* Buttons */
+/* ==========================================================================
+   BUTTONS & FORM CONTROLS
+   ========================================================================== */
+
 .btn-cyber-primary {
   background: var(--accent-gradient);
   border: none;
-  color: #ffffff;
+  color: #ffffff !important;
   font-weight: 600;
   box-shadow: 0 4px 15px rgba(99, 102, 241, 0.35);
   transition: all 0.25s ease;
@@ -221,21 +239,50 @@ body {
 .btn-cyber-primary:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5);
-  color: #ffffff;
+  color: #ffffff !important;
 }
 
-/* Form Inputs */
 .form-control, .form-select {
   border-radius: 10px;
+  background-color: var(--bg-surface-solid) !important;
+  color: var(--text-main) !important;
+  border: 1px solid var(--border-color) !important;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.form-control:focus, .form-select:focus {
-  border-color: var(--accent-primary);
-  box-shadow: 0 0 0 0.25rem var(--accent-glow);
+.form-control::placeholder {
+  color: var(--text-muted) !important;
 }
 
-/* Gauge Ring Animation */
+.form-control:focus, .form-select:focus {
+  border-color: var(--accent-primary) !important;
+  box-shadow: 0 0 0 0.25rem var(--accent-glow) !important;
+}
+
+.input-group-text {
+  background: var(--bg-surface-solid) !important;
+  color: var(--text-main) !important;
+  border-color: var(--border-color) !important;
+}
+
+/* Dropdowns */
+.dropdown-menu {
+  background: var(--bg-surface-solid) !important;
+  border: 1px solid var(--border-color) !important;
+}
+
+.dropdown-item {
+  color: var(--text-main) !important;
+}
+
+.dropdown-item:hover {
+  background: var(--accent-glow) !important;
+}
+
+/* ==========================================================================
+   GAUGES, HEATMAPS & EXTRA COMPONENTS
+   ========================================================================== */
+
 .trust-score-gauge {
   position: relative;
   width: 160px;
@@ -269,7 +316,6 @@ body {
   text-align: center;
 }
 
-/* Heatmap Grid */
 .heatmap-cell {
   aspect-ratio: 1;
   border-radius: 4px;
@@ -288,7 +334,6 @@ body {
 .heat-level-3 { background-color: rgba(99, 102, 241, 0.85); }
 .heat-level-4 { background-color: #6366f1; box-shadow: 0 0 8px #6366f1; }
 
-/* Digital DNA Badge */
 .digital-dna-badge {
   background: var(--bg-surface-solid);
   border: 1px dashed var(--accent-primary);
@@ -296,106 +341,156 @@ body {
   border-radius: 8px;
   font-family: monospace;
   font-weight: 700;
-  color: var(--accent-primary);
+  color: var(--accent-primary) !important;
   letter-spacing: 1px;
 }
 
-/* Toast Notifications Container */
 #toastContainer {
   position: fixed;
   bottom: 1.5rem;
   right: 1.5rem;
   z-index: 1090;
 }
-/* ==========================
-   PROFILE SHIELD FINAL FIX
-========================== */
 
-html,
-body {
-    background: var(--bg-primary) !important;
-    color: var(--text-main) !important;
+/* ==========================================================================
+   BOOTSTRAP TABLE OVERRIDES (DARK THEME FIX)
+   ========================================================================== */
+
+.table-responsive {
+  background: transparent !important;
+  border-radius: 12px;
 }
 
-/* Global text */
-body,
-p,
-span,
-small,
-div,
-td,
-th,
-label,
-li,
-a,
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-    color: var(--text-main) !important;
+.table {
+  --bs-table-bg: transparent !important;
+  --bs-table-accent-bg: transparent !important;
+  --bs-table-striped-bg: rgba(255, 255, 255, 0.02) !important;
+  --bs-table-hover-bg: rgba(255, 255, 255, 0.05) !important;
+  --bs-table-color: var(--text-main) !important;
+  color: var(--text-main) !important;
+  background-color: transparent !important;
+  border-color: var(--border-color) !important;
+  margin-bottom: 0;
 }
 
-.text-muted{
-    color:#94a3b8 !important;
+.table > :not(caption) > * > * {
+  background-color: transparent !important;
+  color: var(--text-main) !important;
+  border-bottom-color: var(--border-color) !important;
+  box-shadow: none !important;
+  padding: 1rem 0.75rem;
+  vertical-align: middle;
 }
 
-/* Inputs */
-.form-control,
-.form-select{
-    background:#1e293b !important;
-    color:#ffffff !important;
-    border:1px solid #475569 !important;
+.table tbody tr {
+  transition: background-color 0.2s ease;
 }
 
-.form-control::placeholder{
-    color:#94a3b8 !important;
+.table tbody tr:hover {
+  background-color: var(--bg-card-hover) !important;
 }
 
-.input-group-text{
-    background:#1e293b !important;
-    color:#ffffff !important;
+.table th {
+  font-weight: 600;
+  color: var(--text-muted) !important;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.5px;
+  border-bottom: 2px solid var(--border-color) !important;
 }
 
-/* Tables */
-.table{
-    color:#ffffff !important;
+/* ==========================================================================
+   ALERT DIALOG BOXES & USER PROFILE HEADER FIXES
+   ========================================================================== */
+
+.alert {
+  background-color: var(--bg-card) !important;
+  border: 1px solid var(--border-color) !important;
+  color: var(--text-main) !important;
+  border-radius: 12px;
 }
 
-.table th,
-.table td{
-    color:#ffffff !important;
+.alert-success {
+  background-color: rgba(34, 197, 94, 0.15) !important;
+  border-color: rgba(34, 197, 94, 0.4) !important;
+  color: #4ade80 !important;
 }
 
-/* Cards */
-.glass-panel,
-.glass-card{
-    color:#ffffff !important;
+.alert .btn-close {
+  filter: invert(1) opacity(0.8);
 }
 
-/* Dropdown */
-.dropdown-menu{
-    background:#1e293b !important;
+/* Top Right User Profile Visibility */
+header .dropdown-toggle,
+.navbar .nav-item,
+[class*="user"],
+.badge-admin {
+  color: var(--text-main) !important;
 }
 
-.dropdown-item{
-    color:#ffffff !important;
+.main-content header *,
+header * {
+  color: var(--text-main);
 }
 
-.dropdown-item:hover{
-    background:#334155 !important;
+.badge.bg-primary, 
+.badge.bg-info,
+.badge-admin {
+  background-color: var(--accent-primary) !important;
+  color: #ffffff !important;
+  font-weight: 600;
 }
 
-/* Bootstrap Overrides */
-.text-white{
-    color:#ffffff !important;
+/* ==========================================================================
+   KPI CARDS – micro-animations
+   ========================================================================== */
+
+.kpi-card {
+  transition: transform 0.25s cubic-bezier(0.4,0,0.2,1), box-shadow 0.25s ease;
+  cursor: default;
 }
 
-.text-dark{
-    color:#0f172a !important;
+.kpi-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 40px -10px rgba(99,102,241,0.35) !important;
 }
 
-.bg-transparent{
-    color:#ffffff !important;
+.kpi-label {
+  font-size: 0.68rem;
+  letter-spacing: 0.5px;
+}
+
+.kpi-icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+}
+
+/* ==========================================================================
+   DARK THEME TABLE FORCE (dashboard Recent Assessments panel)
+   ========================================================================== */
+
+[style*="background:#0f172a"] .table,
+[style*="background:#0f172a"] .table > :not(caption) > * > * {
+  color: #f8fafc !important;
+  border-bottom-color: rgba(255,255,255,0.05) !important;
+}
+
+[style*="background:#0f172a"] .table th {
+  color: #94a3b8 !important;
+}
+
+[style*="background:#0f172a"] .table tbody tr:hover {
+  background-color: rgba(255,255,255,0.04) !important;
+}
+
+/* ==========================================================================
+   ADMIN MODEL TRAINER SPECIFIC
+   ========================================================================== */
+
+#featureImportanceChart .plotly {
+  border-radius: 8px;
 }

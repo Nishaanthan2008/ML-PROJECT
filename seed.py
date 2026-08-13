@@ -66,6 +66,7 @@ def seed_database():
 
         model_registry = MLModelRegistry(
             model_name=best_name,
+            algorithm_key=best_name.lower().replace(' ', '_'),
             version='v1.0.0',
             filepath=os.path.join(app.config['MODEL_FOLDER'], 'best_profile_shield_model.joblib'),
             is_active=True,

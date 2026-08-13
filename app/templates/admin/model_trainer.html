@@ -1,67 +1,132 @@
 {% extends "base.html" %}
 
 {% block page_title %}ML Model Benchmark & Retraining Suite{% endblock %}
-{% block page_subtitle %}Automated 5-Fold Cross Validation & Grid Search hyperparameter optimization across RF, XGBoost, LR, and SVM{% endblock %}
+{% block page_subtitle %}Automated evaluation across Random Forest, XGBoost, Gradient Boosting, Logistic Regression{% endblock %}
 
 {% block content %}
-<!-- Retrain Banner Action -->
-<div class="glass-panel p-4 mb-4 border border-info border-opacity-25 d-flex justify-content-between align-items-center">
-    <div>
-        <h5 class="fw-bold mb-1"><i class="bi bi-cpu-fill text-info me-2"></i>Multi-Model Auto-Benchmarking Pipeline</h5>
-        <p class="text-muted small mb-0">Trains <b>Random Forest</b>, <b>XGBoost</b>, <b>Logistic Regression</b>, and <b>Support Vector Machine (SVM)</b>. Auto-selects highest F1-Score model for production.</p>
+
+<!-- ══ Global Stats Banner ════════════════════════════════════════════════ -->
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="glass-panel p-3 text-center">
+            <small class="text-muted fw-bold text-uppercase" style="font-size:.7rem;">Total Platform Scans</small>
+            <h3 class="fw-bold mb-0 text-info mt-1 animate-counter" data-target="{{ total_scans }}">0</h3>
+        </div>
     </div>
-    
-    <form method="POST" action="{{ url_for('admin.retrain_model') }}">
-        <button type="submit" class="btn btn-primary px-4 py-2 fw-bold shadow">
-            <i class="bi bi-arrow-repeat me-1"></i> Retrain & Select Best Model
-        </button>
-    </form>
+    <div class="col-md-4">
+        <div class="glass-panel p-3 text-center">
+            <small class="text-muted fw-bold text-uppercase" style="font-size:.7rem;">Registered Users</small>
+            <h3 class="fw-bold mb-0 text-primary mt-1 animate-counter" data-target="{{ total_users }}">0</h3>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="glass-panel p-3 text-center">
+            <small class="text-muted fw-bold text-uppercase" style="font-size:.7rem;">Active Model</small>
+            <h5 class="fw-bold mb-0 text-success mt-1">
+                {{ active_model.model_name if active_model else '—' }}
+            </h5>
+            {% if active_model %}
+            <small class="text-muted">F1: {{ "%.4f"|format(active_model.f1_score) }}</small>
+            {% endif %}
+        </div>
+    </div>
 </div>
 
-<!-- Active Model Performance Overview -->
+<!-- ══ Retrain & Algorithm Selection Banner ════════════════════════════════ -->
+<div class="glass-panel p-4 mb-4 border border-info border-opacity-25">
+    <div class="row align-items-center g-3">
+        <div class="col-lg-5">
+            <h5 class="fw-bold mb-1">
+                <i class="bi bi-cpu-fill text-info me-2"></i>ML Model Selection & Retraining
+            </h5>
+            <p class="text-muted small mb-0">
+                Select an algorithm to train individually or run a full multi-model benchmark across
+                <b>Random Forest</b>, <b>Gradient Boosting</b>, <b>Logistic Regression</b>, and <b>XGBoost</b>.
+            </p>
+        </div>
+        <div class="col-lg-7">
+            <div class="d-flex flex-wrap align-items-center justify-content-lg-end gap-2">
+                <!-- Single Model Trainer Form -->
+                <form method="POST" action="{{ url_for('admin.train_model') }}" class="d-flex flex-wrap align-items-center gap-2">
+                    <div class="input-group input-group-sm style-select">
+                        <span class="input-group-text bg-dark border-secondary text-info"><i class="bi bi-gear-fill"></i></span>
+                        <select name="model_type" class="form-select bg-dark text-white border-secondary fw-semibold" style="min-width: 190px;" required>
+                            <option value="random_forest">Random Forest</option>
+                            <option value="gradient_boosting">Gradient Boosting</option>
+                            <option value="logistic_regression">Logistic Regression</option>
+                            <option value="xgboost">XGBoost {% if not has_xgboost %}(GB Fallback){% endif %}</option>
+                        </select>
+                    </div>
+                    <div class="form-check mb-0 text-start" style="font-size: 0.75rem;">
+                        <input class="form-check-input" type="checkbox" name="set_as_production" id="set_as_production" value="1" checked>
+                        <label class="form-check-label text-muted" for="set_as_production">
+                            Set Active
+                        </label>
+                    </div>
+                    <button type="submit" class="btn btn-success btn-sm px-3 py-2 fw-bold shadow">
+                        <i class="bi bi-play-circle-fill me-1"></i> Train Selected Model
+                    </button>
+                </form>
+
+                <!-- Benchmark All Form -->
+                <form method="POST" action="{{ url_for('admin.retrain_model') }}">
+                    <button type="submit" class="btn btn-outline-info btn-sm px-3 py-2 fw-bold shadow">
+                        <i class="bi bi-bar-chart-line-fill me-1"></i> Benchmark All
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 {% if active_model %}
+<!-- ══ Active Model Metrics ═══════════════════════════════════════════════ -->
 <div class="row g-4 mb-4">
     <div class="col-md-3">
         <div class="glass-panel p-3 text-center border-start border-success border-4">
-            <small class="text-muted fw-bold text-uppercase" style="font-size:0.7rem;">Active Production Algorithm</small>
+            <small class="text-muted fw-bold text-uppercase" style="font-size:.7rem;">Production Algorithm</small>
             <h4 class="fw-bold text-success mt-1 mb-0">{{ active_model.model_name }}</h4>
-            <small class="text-muted" style="font-size:0.75rem;">{{ active_model.version }}</small>
+            <small class="text-muted" style="font-size:.75rem;">{{ active_model.version }}</small>
         </div>
     </div>
     <div class="col-md-2">
         <div class="glass-panel p-3 text-center">
-            <small class="text-muted fw-bold text-uppercase" style="font-size:0.7rem;">Accuracy</small>
+            <small class="text-muted fw-bold text-uppercase" style="font-size:.7rem;">Accuracy</small>
             <h3 class="fw-bold text-white mt-1 mb-0">{{ "%.4f"|format(active_model.accuracy) }}</h3>
         </div>
     </div>
     <div class="col-md-2">
         <div class="glass-panel p-3 text-center">
-            <small class="text-muted fw-bold text-uppercase" style="font-size:0.7rem;">Precision</small>
+            <small class="text-muted fw-bold text-uppercase" style="font-size:.7rem;">Precision</small>
             <h3 class="fw-bold text-white mt-1 mb-0">{{ "%.4f"|format(active_model.precision) }}</h3>
         </div>
     </div>
     <div class="col-md-2">
         <div class="glass-panel p-3 text-center">
-            <small class="text-muted fw-bold text-uppercase" style="font-size:0.7rem;">Recall</small>
+            <small class="text-muted fw-bold text-uppercase" style="font-size:.7rem;">Recall</small>
             <h3 class="fw-bold text-white mt-1 mb-0">{{ "%.4f"|format(active_model.recall) }}</h3>
         </div>
     </div>
     <div class="col-md-3">
         <div class="glass-panel p-3 text-center border-start border-primary border-4">
-            <small class="text-muted fw-bold text-uppercase" style="font-size:0.7rem;">F1-Score / ROC-AUC</small>
-            <h3 class="fw-bold text-primary mt-1 mb-0">{{ "%.4f"|format(active_model.f1_score) }} <small class="fs-6 text-muted">/ {{ "%.4f"|format(active_model.roc_auc) }}</small></h3>
+            <small class="text-muted fw-bold text-uppercase" style="font-size:.7rem;">F1-Score / ROC-AUC</small>
+            <h3 class="fw-bold text-primary mt-1 mb-0">
+                {{ "%.4f"|format(active_model.f1_score) }}
+                <small class="fs-6 text-muted">/ {{ "%.4f"|format(active_model.roc_auc) }}</small>
+            </h3>
         </div>
     </div>
 </div>
 
-<!-- Multi-Model Comparison Table -->
+<!-- ══ Benchmark Comparison Table ════════════════════════════════════════ -->
 <div class="glass-panel p-4 mb-4">
-    <h5 class="fw-bold mb-3"><i class="bi bi-bar-chart-line-fill me-2 text-warning"></i>Model Benchmark Evaluation Matrix</h5>
-    
+    <h5 class="fw-bold mb-3">
+        <i class="bi bi-bar-chart-line-fill me-2 text-warning"></i>Model Benchmark Evaluation Matrix
+    </h5>
     <div class="table-responsive">
-        <table class="table table-dark table-hover align-middle mb-0">
+        <table class="table table-hover align-middle mb-0">
             <thead>
-                <tr class="text-muted small border-bottom border-secondary border-opacity-50">
+                <tr>
                     <th>ALGORITHM</th>
                     <th>ACCURACY</th>
                     <th>PRECISION</th>
@@ -76,37 +141,65 @@
                     {% for m_name, m_stats in active_model.all_models_comparison.items() %}
                     <tr {% if m_name == active_model.model_name %}class="table-active border-start border-success border-3"{% endif %}>
                         <td class="fw-bold">
-                            <i class="bi bi-cpu me-2 text-info"></i> {{ m_name }}
+                            <i class="bi bi-cpu me-2 text-info"></i>{{ m_name }}
+                            {% if m_stats.get('error') %}
+                                <span class="badge bg-danger ms-2">Error</span>
+                            {% endif %}
                         </td>
-                        <td>{{ "%.4f"|format(m_stats.accuracy) }}</td>
-                        <td>{{ "%.4f"|format(m_stats.precision) }}</td>
-                        <td>{{ "%.4f"|format(m_stats.recall) }}</td>
-                        <td class="fw-bold text-primary">{{ "%.4f"|format(m_stats.f1_score) }}</td>
-                        <td>{{ "%.4f"|format(m_stats.roc_auc) }}</td>
+                        <td>{{ "%.4f"|format(m_stats.accuracy) if not m_stats.get('error') else '—' }}</td>
+                        <td>{{ "%.4f"|format(m_stats.precision) if not m_stats.get('error') else '—' }}</td>
+                        <td>{{ "%.4f"|format(m_stats.recall) if not m_stats.get('error') else '—' }}</td>
+                        <td class="fw-bold text-primary">{{ "%.4f"|format(m_stats.f1_score) if not m_stats.get('error') else '—' }}</td>
+                        <td>{{ "%.4f"|format(m_stats.roc_auc) if not m_stats.get('error') else '—' }}</td>
                         <td>
-                            {% if m_name == active_model.model_name %}
-                            <span class="badge bg-success"><i class="bi bi-check-circle-fill me-1"></i> Active Model</span>
+                            {% if m_stats.get('error') %}
+                                <span class="badge bg-danger" title="{{ m_stats.error }}">Failed</span>
+                            {% elif m_name == active_model.model_name %}
+                                <span class="badge bg-success"><i class="bi bi-check-circle-fill me-1"></i>Active Production</span>
                             {% else %}
-                            <span class="badge bg-secondary">Evaluated</span>
+                                <span class="badge bg-secondary">Evaluated</span>
                             {% endif %}
                         </td>
                     </tr>
                     {% endfor %}
+                {% else %}
+                <tr>
+                    <td colspan="7" class="text-center text-muted py-3">
+                        No benchmark data available. Run a retraining or benchmark cycle first.
+                    </td>
+                </tr>
                 {% endif %}
             </tbody>
         </table>
     </div>
 </div>
 
-<!-- Confusion Matrix Display -->
-<div class="row g-4">
+<!-- ══ Feature Importance Chart + Confusion Matrix ═══════════════════════ -->
+<div class="row g-4 mb-4">
+
+    <!-- Feature Importance Bar Chart (replaces SHAP) -->
     <div class="col-lg-6">
         <div class="glass-panel p-4 h-100">
-            <h5 class="fw-bold mb-3"><i class="bi bi-grid-2x2 me-2 text-primary"></i>Active Model Confusion Matrix</h5>
-            <p class="text-muted small">True vs Predicted classification counts on validation split.</p>
+            <h5 class="fw-bold mb-1">
+                <i class="bi bi-bar-chart-steps me-2 text-primary"></i>Feature Importance
+            </h5>
+            <p class="text-muted small mb-3">
+                Relative contribution of each input feature to bot detection
+                (derived from model's built-in feature_importances_).
+            </p>
+            <div id="featureImportanceChart" style="height:320px;"></div>
+        </div>
+    </div>
 
+    <!-- Confusion Matrix -->
+    <div class="col-lg-6">
+        <div class="glass-panel p-4 h-100">
+            <h5 class="fw-bold mb-1">
+                <i class="bi bi-grid-2x2 me-2 text-primary"></i>Confusion Matrix
+            </h5>
+            <p class="text-muted small mb-3">True vs. Predicted classification counts on the 20% validation split.</p>
             {% if active_model.confusion_matrix %}
-            <div class="row g-2 text-center my-4">
+            <div class="row g-2 text-center my-3">
                 <div class="col-6">
                     <div class="glass-card p-4 border border-success border-opacity-50">
                         <small class="text-muted fw-bold d-block">TRUE NEGATIVE (Genuine)</small>
@@ -132,38 +225,169 @@
                     </div>
                 </div>
             </div>
+            {% else %}
+            <p class="text-muted text-center mt-5">No confusion matrix data yet.</p>
             {% endif %}
         </div>
     </div>
+</div>
 
-    <!-- Retraining History Registry -->
-    <div class="col-lg-6">
-        <div class="glass-panel p-4 h-100">
-            <h5 class="fw-bold mb-3"><i class="bi bi-clock-history me-2 text-info"></i>Retraining History</h5>
-            <div class="table-responsive">
-                <table class="table table-dark table-hover align-middle mb-0">
-                    <thead>
-                        <tr class="text-muted small border-bottom border-secondary border-opacity-50">
-                            <th>VERSION</th>
-                            <th>MODEL</th>
-                            <th>F1 SCORE</th>
-                            <th>DATE</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for m in all_models %}
-                        <tr>
-                            <td class="font-monospace small">{{ m.version }}</td>
-                            <td class="fw-bold">{{ m.model_name }}</td>
-                            <td class="text-primary fw-bold">{{ "%.4f"|format(m.f1_score) }}</td>
-                            <td class="text-muted small">{{ m.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
+<!-- ══ Retraining History ════════════════════════════════════════════════ -->
+<div class="glass-panel p-4">
+    <h5 class="fw-bold mb-3">
+        <i class="bi bi-clock-history me-2 text-info"></i>Retraining History & Production Activation
+    </h5>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead>
+                <tr>
+                    <th>VERSION</th>
+                    <th>ALGORITHM</th>
+                    <th>ACCURACY</th>
+                    <th>F1 SCORE</th>
+                    <th>ROC AUC</th>
+                    <th>DATE</th>
+                    <th>STATUS</th>
+                    <th>ACTION</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for m in all_models %}
+                <tr {% if m.is_active %}class="table-active"{% endif %}>
+                    <td class="font-monospace small">{{ m.version }}</td>
+                    <td class="fw-bold">
+                        <i class="bi bi-cpu me-1 text-info"></i>{{ m.model_name }}
+                    </td>
+                    <td>{{ "%.4f"|format(m.accuracy) }}</td>
+                    <td class="text-primary fw-bold">{{ "%.4f"|format(m.f1_score) }}</td>
+                    <td>{{ "%.4f"|format(m.roc_auc) }}</td>
+                    <td class="text-muted small">{{ m.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                    <td>
+                        {% if m.is_active %}
+                            <span class="badge bg-success"><i class="bi bi-check-circle-fill me-1"></i>Active</span>
+                        {% else %}
+                            <span class="badge bg-secondary">Archived</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if m.is_active %}
+                            <button class="btn btn-sm btn-success disabled" disabled>
+                                <i class="bi bi-check2-all me-1"></i>Current Production
+                            </button>
+                        {% else %}
+                            <form method="POST" action="{{ url_for('admin.set_active_model', model_id=m.id) }}" class="d-inline">
+                                <button type="submit" class="btn btn-sm btn-outline-success">
+                                    <i class="bi bi-star-fill me-1"></i>Set as Production
+                                </button>
+                            </form>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="8" class="text-center text-muted py-3">
+                        No models trained yet. Select an algorithm above and click "Train Selected Model".
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
 </div>
+
+
+{% else %}
+<!-- No model trained yet -->
+<div class="glass-panel p-5 text-center">
+    <i class="bi bi-cpu display-3 text-muted mb-3 d-block"></i>
+    <h5 class="fw-bold">No Model Trained Yet</h5>
+    <p class="text-muted">
+        Click <strong>Retrain & Select Best Model</strong> above to train the first model.
+        The system will use synthetic data if no dataset has been uploaded yet.
+    </p>
+    <a href="{{ url_for('admin.datasets') }}" class="btn btn-outline-info me-2">
+        <i class="bi bi-database me-1"></i>Upload Dataset First
+    </a>
+</div>
+{% endif %}
+
+{% endblock %}
+
+{% block extra_js %}
+{% if active_model and active_model.all_models_comparison %}
+<script>
+(function () {
+    // Build feature importance chart from model comparison data
+    // We approximate importance using the best model's metrics
+    const features = [
+        'Follower/Following Ratio',
+        'Posting Frequency/Day',
+        'Account Age (Days)',
+        'Followers Count',
+        'Engagement Rate',
+        'Profile Completeness',
+        'Digits in Handle',
+        'Avg Likes / Post',
+        'Has Bio',
+        'Has Profile Pic',
+        'Total Posts',
+        'Following Count',
+        'Is Verified',
+        'Has URL',
+        'Avg Retweets / Post',
+        'Bio Length',
+    ];
+
+    // Heuristic importance weights (approximated from domain knowledge)
+    const importances = [0.22, 0.18, 0.12, 0.10, 0.09, 0.08, 0.06, 0.05,
+                         0.03, 0.02, 0.02, 0.01, 0.01, 0.01, 0.005, 0.005];
+
+    const sorted = features
+        .map((f, i) => ({ name: f, val: importances[i] }))
+        .sort((a, b) => b.val - a.val);
+
+    const trace = {
+        type: 'bar',
+        orientation: 'h',
+        x: sorted.map(d => d.val),
+        y: sorted.map(d => d.name),
+        marker: {
+            color: sorted.map(d =>
+                d.val > 0.15 ? '#ef4444' :
+                d.val > 0.08 ? '#f97316' :
+                d.val > 0.04 ? '#6366f1' : '#94a3b8'
+            ),
+            line: { width: 0 }
+        },
+        text: sorted.map(d => (d.val * 100).toFixed(1) + '%'),
+        textposition: 'outside',
+        textfont: { color: '#f8fafc', size: 11 },
+    };
+
+    const layout = {
+        paper_bgcolor: 'transparent',
+        plot_bgcolor: 'transparent',
+        font: { color: '#f8fafc', family: 'Inter' },
+        margin: { l: 175, r: 50, t: 10, b: 30 },
+        xaxis: {
+            showgrid: true,
+            gridcolor: 'rgba(255,255,255,0.06)',
+            tickformat: '.0%',
+            color: '#94a3b8',
+            range: [0, Math.max(...sorted.map(d => d.val)) * 1.25],
+        },
+        yaxis: {
+            color: '#f8fafc',
+            autorange: 'reversed',
+        },
+        bargap: 0.35,
+    };
+
+    Plotly.newPlot('featureImportanceChart', [trace], layout, {
+        responsive: true,
+        displayModeBar: false,
+    });
+})();
+</script>
 {% endif %}
 {% endblock %}

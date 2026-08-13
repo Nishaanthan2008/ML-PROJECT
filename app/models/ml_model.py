@@ -8,6 +8,7 @@ class MLModelRegistry(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     model_name = db.Column(db.String(100), nullable=False) # e.g. XGBoost, Random Forest, Logistic Regression, SVM
+    algorithm_key = db.Column(db.String(50), nullable=True) # e.g. random_forest, gradient_boosting, logistic_regression, xgboost
     version = db.Column(db.String(50), nullable=False)
     filepath = db.Column(db.String(500), nullable=False)
     is_active = db.Column(db.Boolean, default=False)

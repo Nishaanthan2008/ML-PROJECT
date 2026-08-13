@@ -58,5 +58,11 @@ def create_app(config_name='default'):
 
     with app.app_context():
         db.create_all()
+        try:
+            from sqlalchemy import text
+            db.session.execute(text("ALTER TABLE ml_models ADD COLUMN algorithm_key VARCHAR(50)"))
+            db.session.commit()
+        except Exception:
+            db.session.rollback()
 
     return app
