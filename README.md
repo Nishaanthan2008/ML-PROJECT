@@ -11,7 +11,7 @@ PROFILE SHIELD AI is a commercial-grade, AI-powered social profile security inte
 1. **AI Trust Score (0-100)**: Multi-dimensional trust score with animated confidence ring and health status.
 2. **Digital DNA Fingerprint**: Generates a unique behavior ID (e.g. `BHV-87231`) summarizing the profile's digital signature.
 3. **7-Axis Trust Radar**: Chart analyzing *Activity, Engagement, Popularity, Consistency, Completeness, Credibility, and Authenticity*.
-4. **Behaviour Evolution Timeline**: Visualizes profile history across 5 stages (*Initial Registration $\rightarrow$ Early Audience Building $\rightarrow$ Activity Shift $\rightarrow$ Mid-Term Pattern $\rightarrow$ Current Assessment*).
+4. **Behaviour Evolution Timeline**: Visualizes profile history across 5 stages (*Initial Registration → Early Audience Building → Activity Shift → Mid-Term Pattern → Current Assessment*).
 5. **24/7 Activity Heatmap**: Interactive posting matrix by day of week and hour of day.
 6. **Natural Language AI Narrative & SHAP**: AI Security Analyst narrative explainability with waterfall bar chart of anomaly drivers.
 7. **Behavioural Clustering**: Categorizes accounts into *Natural, Influencer, Business, Bot-like, Spam, Inactive, or Growing*.
@@ -36,24 +36,3 @@ PROFILE SHIELD AI is a commercial-grade, AI-powered social profile security inte
 ### 1. Install Dependencies
 ```bash
 pip install -r requirements.txt
-```
-
-### 2. Initialize Database & Train Models
-Run the seeder script to populate initial sample data and train the ML models:
-```bash
-python seed.py
-```
-
-### 3. Launch Application Server
-```bash
-python app.py
-```
-
-Open your browser and navigate to: **http://127.0.0.1:5000/**
-
----
-
-## Default Access Credentials
-
-- **Administrator**: `admin@profileshield.ai` / `Admin123!`
-- **Analyst**: `analyst@profileshield.ai` / `Analyst123!`
