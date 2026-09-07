@@ -2,7 +2,6 @@ from flask import Blueprint, make_response, render_template, redirect, url_for, 
 from flask_login import login_required
 
 from app.models.profile_analysis import ProfileAnalysis
-from app.services.pdf_exporter import PDFReportGenerator
 
 reports_bp = Blueprint('reports', __name__, url_prefix='/reports')
 
@@ -10,6 +9,8 @@ reports_bp = Blueprint('reports', __name__, url_prefix='/reports')
 @login_required
 def download_pdf(analysis_id):
     """Generates and downloads PDF Trust Intelligence Report."""
+    from app.services.pdf_exporter import PDFReportGenerator
+    
     analysis = ProfileAnalysis.query.get_or_404(analysis_id)
     pdf_bytes = PDFReportGenerator.generate_profile_report(analysis)
 
@@ -24,3 +25,4 @@ def print_report(analysis_id):
     """Renders print-optimized HTML report view."""
     analysis = ProfileAnalysis.query.get_or_404(analysis_id)
     return render_template('reports/pdf_template.html', analysis=analysis)
+

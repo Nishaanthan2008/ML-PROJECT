@@ -1,0 +1,35 @@
+# Git history and VCS files
+.git/
+.gitignore
+
+# Python cache & virtual environments
+.venv/
+venv/
+env/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Local runtime data, datasets, uploads & temporary files
+instance/
+scratch/
+reports/
+data/uploads/
+data/*.csv
+
+# Local environment variables & secrets
+.env
+.env.local
+
+# OS files & local database files
+.DS_Store
+*.log
+*.db
+*.sqlite
+*.sqlite3
+
+# Documentation & implementation notes
+README.md
+implementation_plan.md
+walkthrough.md

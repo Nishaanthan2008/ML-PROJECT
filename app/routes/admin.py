@@ -9,12 +9,11 @@ from app.models.dataset import Dataset
 from app.models.ml_model import MLModelRegistry
 from app.models.user import User
 from app.models.profile_analysis import ProfileAnalysis
-from app.ml.dataset_generator import generate_synthetic_profile_dataset
-from app.ml.trainer import ModelTrainer
 from app.services.csv_validator import validate_profile_csv
 from app.utils.decorators import admin_required
 
 admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
+
 
 
 def _dataset_folder():
@@ -145,6 +144,7 @@ def train_model():
                 'No uploaded dataset found. Generating synthetic training data (1,200 samples).',
                 'info',
             )
+            from app.ml.dataset_generator import generate_synthetic_profile_dataset
             df = generate_synthetic_profile_dataset(num_samples=1200)
 
         trainer = ModelTrainer(model_dir=model_dir)
@@ -213,6 +213,7 @@ def retrain_model():
                 'No uploaded dataset found. Generating synthetic training data (1,200 samples).',
                 'info',
             )
+            from app.ml.dataset_generator import generate_synthetic_profile_dataset
             df = generate_synthetic_profile_dataset(num_samples=1200)
 
         trainer = ModelTrainer(model_dir=model_dir)
