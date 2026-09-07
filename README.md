@@ -50,7 +50,7 @@ python seed.py
 ### 3. Launch Application Server
 
 ```bash
-python app.py
+python wsgi.py
 ```
 
 ---
