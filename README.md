@@ -34,5 +34,28 @@ PROFILE SHIELD AI is a commercial-grade, AI-powered social profile security inte
 ## Quick Start & Installation
 
 ### 1. Install Dependencies
+
 ```bash
 pip install -r requirements.txt
+```
+
+### 2. Initialize Database & Train Models
+
+Run the seeder script to populate initial sample data and train the ML models:
+
+```bash
+python seed.py
+```
+
+### 3. Launch Application Server
+
+```bash
+python app.py
+```
+
+---
+
+## Default Access Credentials
+
+- **Administrator**: `admin@profileshield.ai` / `Admin123!`
+- **Analyst**: `analyst@profileshield.ai` / `Analyst123!`
