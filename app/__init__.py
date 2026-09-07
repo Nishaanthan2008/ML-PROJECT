@@ -13,13 +13,23 @@ login_manager.login_message_category = 'warning'
 def create_app(config_name='default'):
     """Application Factory Function."""
     app = Flask(__name__)
+    
+    # Resolve config_name if 'default' or invalid string is passed
+    if config_name not in config:
+        config_name = os.environ.get('FLASK_ENV', os.environ.get('FLASK_CONFIG', 'development'))
+    if config_name not in config:
+        config_name = 'development'
+        
     app.config.from_object(config[config_name])
 
-    # Ensure Instance & Data Folders Exist
-    os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
-    os.makedirs(app.config['DATASET_FOLDER'], exist_ok=True)
-    os.makedirs(app.config['MODEL_FOLDER'], exist_ok=True)
-    os.makedirs(os.path.join(app.root_path, '..', 'instance'), exist_ok=True)
+    # Ensure Instance & Data Folders Exist (safe for read-only serverless environments)
+    try:
+        os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+        os.makedirs(app.config['DATASET_FOLDER'], exist_ok=True)
+        os.makedirs(app.config['MODEL_FOLDER'], exist_ok=True)
+        os.makedirs(os.path.join(app.root_path, '..', 'instance'), exist_ok=True)
+    except Exception as e:
+        app.logger.warning(f"Could not create local storage directories: {e}")
 
     # Initialize Extensions
     db.init_app(app)
@@ -59,10 +69,15 @@ def create_app(config_name='default'):
     with app.app_context():
         db.create_all()
         try:
-            from sqlalchemy import text
-            db.session.execute(text("ALTER TABLE ml_models ADD COLUMN algorithm_key VARCHAR(50)"))
-            db.session.commit()
-        except Exception:
+            from sqlalchemy import inspect, text
+            inspector = inspect(db.engine)
+            if 'ml_models' in inspector.get_table_names():
+                columns = [col['name'] for col in inspector.get_columns('ml_models')]
+                if 'algorithm_key' not in columns:
+                    db.session.execute(text("ALTER TABLE ml_models ADD COLUMN algorithm_key VARCHAR(50)"))
+                    db.session.commit()
+        except Exception as e:
             db.session.rollback()
+            app.logger.warning(f"Schema update check skipped: {e}")
 
     return app
